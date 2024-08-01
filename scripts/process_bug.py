@@ -112,7 +112,11 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
         subprocess.run(["cp", f"{output_dir}reduced_{language}/main.dfy", f"tmp/{language}/reduced.dfy"], check=True)
         subprocess.run(["cp", f"{output_dir}reduced_{language}/fuzz-d.log", f"tmp/{language}/reduced_fuzz-d.log"], check=True)
 
-        subprocess.run(["aws", "s3", "cp", f"tmp/{language}/", f"s3://compfuzzci/bugs-to-be-processed/{location}-{language}-{TASK_ID}/", "--recursive"], check=True)
+        if issue_no == "None":
+            result_foldername = f"s3://compfuzzci/bugs-to-be-processed/pull_request-{location}-{language}-{TASK_ID}/"
+        else:
+            result_foldername = f"s3://compfuzzci/bugs-to-be-processed/issue-{issue_no}-{location}-{language}-{TASK_ID}/"
+        subprocess.run(["aws", "s3", "cp", f"tmp/{language}/", result_foldername, "--recursive"], check=True)
 
         with open(f"tmp/{language}/data.txt", 'w') as f:
             f.write(f"Location: {location}\n")
