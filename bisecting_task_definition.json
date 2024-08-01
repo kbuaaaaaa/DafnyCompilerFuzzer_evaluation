@@ -1,0 +1,49 @@
+{
+    "family": "bisecting-tasks",
+    "taskRoleArn": "",
+    "executionRoleArn": "",
+    "networkMode": "bridge",
+    "containerDefinitions": [
+        {
+            "name": "bisecting-container",
+            "image": "",
+            "essential": true,
+            "cpu": 2048,
+            "memoryReservation": 3072,
+            "command": [
+                ""
+            ],
+            "startTimeout": 300,
+            "stopTimeout": 300,
+            "disableNetworking": false,
+            "privileged": false,
+            "readonlyRootFilesystem": false,
+            "interactive": false,
+            "pseudoTerminal": true,
+            "ulimits": [
+                {
+                    "name": "core",
+                    "softLimit": 0,
+                    "hardLimit": 0
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "compfuzzci-tasks",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "task"
+                }
+            }
+        }
+    ],
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "pidMode": "host",
+    "ipcMode": "host",
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    }
+}

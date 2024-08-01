@@ -1,0 +1,144 @@
+import os
+import subprocess
+import requests
+import boto3
+import hashlib
+import asyncio
+from interestingness_test_gen import generate_interestingness_test
+from reduction import reduction
+from bisection import bisection
+
+# Get the task id
+ECS_CONTAINER_METADATA_URI_V4 = os.environ.get('ECS_CONTAINER_METADATA_URI_V4')
+response = requests.get(f"{ECS_CONTAINER_METADATA_URI_V4}/task")
+TASK_ID = response.json()["TaskARN"].split("/")[-1]
+# Set the S3 folder
+S3_folder = "s3://compfuzzci/tmp/" + TASK_ID
+
+# Create an S3 resource object
+s3 = boto3.resource('s3')
+
+def is_fuzz_d_error(bug):
+    known_errors = ["All elements of display must have some common supertype", "type of left argument to +", "type parameter is not declared in this scope", "Error: the type of this expression is underspecified", "Error: branches of if-then-else have incompatible types", "Error: the two branches of an if-then-else expression must have the same type"]
+    for error in known_errors:
+        for b in bug:
+            if error in b:
+                return True
+    return False
+
+def hash_bug(bug):
+    # Hash bug data and make a folder for it in location/language/
+    sorted_bug = sorted(bug)
+    concatenated_bug = ''.join(sorted_bug)
+    hashed_bug = hashlib.md5(concatenated_bug.encode()).hexdigest()
+    return hashed_bug
+
+def is_duplicate(branch="master", language= "dafny", hashed_bug=""):
+    # Define the S3 bucket and prefix
+    bucket_name = "compfuzzci"
+    prefix = f"bugs/{branch}/{language}/{hashed_bug}"
+
+    # List objects in the S3 bucket with the specified prefix
+    print(f"Checking if {prefix} exists")
+    response = s3.meta.client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+    if response.get('Contents'):
+        return True
+
+    return False
+
+async def process_bug(output_dir, language, bug, branch, interpret, main_commit, current_branch_commit, processing=False, issue_no="None"):
+
+    async def handle_bisection_reduction():
+        reduction_task = asyncio.create_task(reduction(processing, output_dir, language, interpret))
+        bisection_result = await bisection(f"{S3_folder}/{language}/", main_commit)
+        print(f"Bisection result arrived: Location={bisection_result[0]}, First bad commit={bisection_result[1]}")
+        if language == "miscompilation" and is_duplicate(bisection_result[0], language, bisection_result[1]):
+            reduction_task.cancel()
+            try:
+                await reduction_task
+            except asyncio.CancelledError:
+                print("Function b was cancelled successfully.")
+            return 0
+        else:
+            print("Waiting for reduction")
+            reduction_result = await reduction_task
+            print("Reduction result arrived")
+            if not reduction_result:
+                return 0
+            return bisection_result
+    
+    # this check only pass if bug is not duplicate anywhere.
+    if language != "miscompilation":
+        hashed_bug = hash_bug(bug)
+    else:
+        hashed_bug = bug
+
+    if not processing:
+            output_dir += "/"
+
+    if language == "miscompilation" or not (is_fuzz_d_error(bug) or is_duplicate("master", language, hashed_bug) or is_duplicate(branch, language, hashed_bug)):
+        print("Found interesting case in " + language)
+
+        generate_interestingness_test(output_dir, interpret, hashed_bug, language)
+
+        # Copy interestingness test, fuzz_d.log, main.dfy to folder for the task in S3
+        os.makedirs(f"tmp/{language}", exist_ok=True)
+        subprocess.run(["cp", f"{output_dir}{language}-interestingness_test.sh", f"tmp/{language}/interestingness_test.sh"], check=True)
+        subprocess.run(["cp", f"{output_dir}main.dfy", f"tmp/{language}/"], check=True)
+
+        with open(f"tmp/{language}/data.txt", 'w') as f:
+            f.write(f"{branch}\n")
+            f.write(f"{language}\n")
+            f.write(f"{main_commit}\n")
+            f.write(f"{current_branch_commit}\n")
+            f.write(f"{hashed_bug}\n")
+        f.close()
+        subprocess.run(["aws", "s3", "cp", f"tmp/{language}/", f"{S3_folder}/{language}/", "--recursive"], check=True)
+        subprocess.run(["rm", "-rf", f"tmp/{language}"], check=True)
+
+        result = await handle_bisection_reduction()
+        if not result:
+            s3.Bucket('compfuzzci').objects.filter(Prefix=f"{TASK_ID}/{language}").delete()
+            return 0
+        else:
+            location = result[0]
+            first_bad_commit = result[1]
+
+        # Copy reduced program, fuzz-d.log to S3
+        print("Copying reduced program and output to S3")
+        os.makedirs(f"tmp/{language}", exist_ok=True)
+        subprocess.run(["cp", f"{output_dir}main.dfy", f"tmp/{language}/original.dfy"], check=True)
+        subprocess.run(["cp", f"{output_dir}fuzz-d.log", f"tmp/{language}/original_fuzz-d.log"], check=True)
+        subprocess.run(["cp", f"{output_dir}reduced_{language}/main.dfy", f"tmp/{language}/reduced.dfy"], check=True)
+        subprocess.run(["cp", f"{output_dir}reduced_{language}/fuzz-d.log", f"tmp/{language}/reduced_fuzz-d.log"], check=True)
+
+        subprocess.run(["aws", "s3", "cp", f"tmp/{language}/", f"s3://compfuzzci/bugs-to-be-processed/{location}-{language}-{TASK_ID}/", "--recursive"], check=True)
+
+        with open(f"tmp/{language}/data.txt", 'w') as f:
+            f.write(f"Location: {location}\n")
+            f.write(f"Bad commit: {first_bad_commit}\n")
+            f.write(f"Language: {language}\n")
+            f.write(f"Bug: {hashed_bug}\n")
+            f.write(f"Issue number: {issue_no}\n")
+        f.close()
+
+        subprocess.run(["aws", "s3", "cp", f"tmp/{language}/data.txt", f"s3://compfuzzci/bugs-to-be-processed/{location}-{language}-{TASK_ID}/data.txt"], check=True)
+
+        subprocess.run(["rm", "-rf", f"tmp/{language}/"], check=True)
+
+        # Remove the temp folder
+        print("Removing temp folder")
+        s3.Bucket('compfuzzci').objects.filter(Prefix=f"{TASK_ID}/{language}").delete()
+        print("Done")
+        return 0
+    else:
+        print("Not interesting")
+        return 0
+
+def process_bug_handler(output_dir, language, bug, branch, interpret, main_commit, current_branch_commit, processing, issue_no):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(process_bug(output_dir, language, bug, branch, interpret, main_commit, current_branch_commit, processing, issue_no))
+    finally:
+        loop.close()
