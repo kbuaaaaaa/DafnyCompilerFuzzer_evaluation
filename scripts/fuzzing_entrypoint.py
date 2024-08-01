@@ -21,7 +21,12 @@ if __name__ == "__main__":
     while (time.time() - start_time) < duration:
         # Fuzz until we hit an interesting case
         print("Fuzzing...")
-        output_dir = subprocess.check_output(["timeout", "60", "java", "-jar", "fuzz_d.jar", "fuzz"]).decode().split(': ')[-1].strip()
+        output = subprocess.run(["timeout", "60", "java", "-jar", "fuzz_d.jar", "fuzz"], capture_output=True, text=True)
+        if output.returncode == 0:
+            output_dir = output.stdout.split(': ')[-1].strip()
+        else:
+            print("Fuzz-d crashed")
+            continue
         uuid = output_dir.split('/')[-1]
         bugs = match_error(f"{output_dir}/fuzz-d.log")
         # Figure out if we can validate with interpreter
