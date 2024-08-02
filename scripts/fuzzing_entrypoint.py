@@ -24,27 +24,26 @@ if __name__ == "__main__":
         output = subprocess.run(["timeout", "60", "java", "-jar", "fuzz_d.jar", "fuzz"], capture_output=True, text=True)
         if output.returncode == 0:
             output_dir = output.stdout.split(': ')[-1].strip()
+            uuid = output_dir.split('/')[-1]
+            bugs = match_error(f"{output_dir}/fuzz-d.log")
+            # Figure out if we can validate with interpreter
+            interpret = True
+            result = subprocess.call(["java", "-jar", "fuzz_d.jar", "interpret", output_dir + "/main.dfy"])
+            if result == 1:
+                interpret = False
+                subprocess.call(["java", "-jar", "fuzz_d.jar", "validate", output_dir + "/main.dfy"])
+
+            threads = []
+            for language, bug in bugs.items():
+                if bug:
+                    t = Thread(target=process_bug_handler, args=(output_dir, language, bug, branch, interpret, main_commit, current_branch_commit, False, "None"))
+                    threads.append(t)
+                    t.start()
+
+            # Wait for all threads to finish
+            for t in threads:
+                t.join()
         else:
             print("Fuzz-d crashed")
-            continue
-        uuid = output_dir.split('/')[-1]
-        bugs = match_error(f"{output_dir}/fuzz-d.log")
-        # Figure out if we can validate with interpreter
-        interpret = True
-        result = subprocess.call(["java", "-jar", "fuzz_d.jar", "interpret", output_dir + "/main.dfy"])
-        if result == 1:
-            interpret = False
-            subprocess.call(["java", "-jar", "fuzz_d.jar", "validate", output_dir + "/main.dfy"])
-
-        threads = []
-        for language, bug in bugs.items():
-            if bug:
-                t = Thread(target=process_bug_handler, args=(output_dir, language, bug, branch, interpret, main_commit, current_branch_commit, False, "None"))
-                threads.append(t)
-                t.start()
-
-        # Wait for all threads to finish
-        for t in threads:
-            t.join()
 
     sys.exit(0)
