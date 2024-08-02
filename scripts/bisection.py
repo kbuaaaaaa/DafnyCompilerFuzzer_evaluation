@@ -6,8 +6,8 @@ import botocore
 
 async def bisection(file_dir, commit):
     # Dispatch GitHub workflow using GitHub API
-    owner = "kbuaaaaaa"
-    repo = "CompFuzzCI"
+    owner = "CompFuzzCI"
+    repo = "DafnyCompilerFuzzer"
     workflow_id = "bisect.yaml"
     url = f"https://api.github.com/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches"
     headers = {
