@@ -126,7 +126,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
             f.write(f"Issue number: {issue_no}\n")
         f.close()
 
-        subprocess.run(["aws", "s3", "cp", f"tmp/{language}/data.txt", f"s3://compfuzzci/bugs-to-be-processed/{location}-{language}-{TASK_ID}/data.txt"], check=True)
+        subprocess.run(["aws", "s3", "cp", f"tmp/{language}/data.txt", f"{result_foldername}data.txt"], check=True)
 
         subprocess.run(["rm", "-rf", f"tmp/{language}/"], check=True)
 
