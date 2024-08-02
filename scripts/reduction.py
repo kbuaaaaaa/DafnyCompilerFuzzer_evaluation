@@ -22,12 +22,19 @@ async def reduction(processing=False, output_dir=None, language=None, interpret=
         print(f"perses stdout: {stdout.decode()}")
         print(f"perses stderr: {stderr.decode()}")
         if process.returncode != 0:
-            print("Reduction Failed")
+            print("Reduction Failed (might be creduce's fault)")
+            process = await asyncio.create_subprocess_shell("java -jar perses.jar --input-file " + f"{output_dir}main.dfy --test-script " + f"{output_dir}{language}-interestingness_test.sh --output-dir " + f"{output_dir}reduced_{language}/", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+            stdout, stderr = await process.communicate()
+            print(f"perses stdout: {stdout.decode()}")
+            print(f"perses stderr: {stderr.decode()}")
+        if process.returncode != 0:
+            print("Reduction Failed (not creduce's fault)")
             if not processing:
                 return 0
             else:
                 os.makedirs(f"{output_dir}reduced_{language}", exist_ok=True)
                 subprocess.run(["cp", f"{output_dir}main.dfy", f"{output_dir}reduced_{language}/main.dfy"], check=True)
+            
         print("Validating the reduced program")
         if interpret:
             process = await asyncio.create_subprocess_shell("java -jar fuzz_d.jar validate " + f"{output_dir}reduced_{language}/main.dfy --interpret --language " + language, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
