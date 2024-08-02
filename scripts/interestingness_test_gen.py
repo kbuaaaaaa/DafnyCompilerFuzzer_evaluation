@@ -6,10 +6,7 @@ def generate_interestingness_test(test_folder, interpret, bug, language):
     # Create the script file and make it executable
     with open(test_script, 'w') as f:
         f.write('#!/bin/bash\n')
-        if interpret == "true":
-            f.write("java -jar /compfuzzci/fuzz_d.jar validate main.dfy --interpret --language {}\n".format(language))
-        else:
-            f.write("java -jar /compfuzzci/fuzz_d.jar validate main.dfy --language {}\n".format(language))
+        f.write("java -jar /compfuzzci/fuzz_d.jar validate main.dfy --language {}\n".format(language))
         
         if language != "miscompilation":
             for err in bug:

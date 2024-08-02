@@ -13,7 +13,7 @@ async def reduction(processing=False, output_dir=None, language=None, interpret=
         process = await asyncio.create_subprocess_shell(f"./{language}-interestingness_test.sh", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{output_dir}creduce-{language}")
         await process.communicate()
         print(f"interestingness_test returns: {process.returncode}")
-        process = await asyncio.create_subprocess_shell("creduce --not-c --no-default-passes --add-pass pass_lines 1 0 " + f"{language}-interestingness_test.sh " + f"main.dfy", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{output_dir}creduce-{language}")
+        process = await asyncio.create_subprocess_shell("creduce --not-c --n 4 --no-default-passes --add-pass pass_lines 1 0 " + f"{language}-interestingness_test.sh " + f"main.dfy", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{output_dir}creduce-{language}")
         stdout, stderr = await process.communicate()
         print(f"creduce stdout: {stdout.decode()}")
         print(f"creduce stderr: {stderr.decode()}")
