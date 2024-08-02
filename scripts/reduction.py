@@ -1,18 +1,20 @@
 import asyncio
 import os
 import subprocess
+import shutil
 
 async def reduction(processing=False, output_dir=None, language=None, interpret=False):
     # Reduce the test case
     try:
         print("Reducing...")
-        if output_dir:
-            process = await asyncio.create_subprocess_shell("creduce --not-c --no-default-passes --add-pass pass_lines 1 0 " + f"{language}-interestingness_test.sh " + f"main.dfy", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=output_dir)
-        else:
-            process = await asyncio.create_subprocess_shell("creduce --not-c --no-default-passes --add-pass pass_lines 1 0 " + f"{language}-interestingness_test.sh " + f"main.dfy", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        os.makedirs(f"{output_dir}creduce-{language}", exist_ok=True)
+        shutil.copy(f"{output_dir}main.dfy", f"{output_dir}creduce-{language}/main.dfy")
+        shutil.copy(f"{output_dir}{language}-interestingness_test.sh", f"{output_dir}creduce-{language}/{language}-interestingness_test.sh")
+        process = await asyncio.create_subprocess_shell("creduce --not-c --no-default-passes --add-pass pass_lines 1 0 " + f"{language}-interestingness_test.sh " + f"main.dfy", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{output_dir}creduce-{language}")
         stdout, stderr = await process.communicate()
         print(f"creduce stdout: {stdout.decode()}")
         print(f"creduce stderr: {stderr.decode()}")
+        shutil.copy(f"{output_dir}creduce-{language}/main.dfy", f"{output_dir}main.dfy")
         process = await asyncio.create_subprocess_shell("java -jar perses.jar --input-file " + f"{output_dir}main.dfy --test-script " + f"{output_dir}{language}-interestingness_test.sh --output-dir " + f"{output_dir}reduced_{language}/", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout, stderr = await process.communicate()
         print(f"perses stdout: {stdout.decode()}")
