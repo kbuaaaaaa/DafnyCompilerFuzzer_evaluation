@@ -9,7 +9,7 @@ import requests
 
 # Set the commit, commit before, and duration
 issue_no = sys.argv[1]
-UNWANTED_LABELS = [r'kind: enhancement', r'kind: language development speed', r'misc: \[.*\]', r'part: (?!code-generation).*']
+UNWANTED_LABELS = [r'kind: language development speed', r'misc: \[.*\]', r'part: (?!code-generation).*']
 
 
 
