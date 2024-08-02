@@ -14,7 +14,7 @@ async def reduction(processing=False, output_dir=None, language=None, interpret=
         stdout, stderr = await process.communicate()
         print(f"creduce stdout: {stdout.decode()}")
         print(f"creduce stderr: {stderr.decode()}")
-        process = await asyncio.create_subprocess_shell("java -jar perses.jar --input-file " + f"{output_dir}creduce-{language}main.dfy --test-script " + f"{output_dir}creduce-{language}{language}-interestingness_test.sh --output-dir " + f"{output_dir}reduced_{language}/", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        process = await asyncio.create_subprocess_shell("java -jar perses.jar --input-file " + f"{output_dir}creduce-{language}/main.dfy --test-script " + f"{output_dir}creduce-{language}/{language}-interestingness_test.sh --output-dir " + f"{output_dir}reduced_{language}/", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout, stderr = await process.communicate()
         print(f"perses stdout: {stdout.decode()}")
         print(f"perses stderr: {stderr.decode()}")
