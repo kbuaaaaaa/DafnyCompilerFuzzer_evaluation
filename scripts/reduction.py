@@ -6,7 +6,10 @@ async def reduction(processing=False, output_dir=None, language=None, interpret=
     # Reduce the test case
     try:
         print("Reducing...")
-        process = await asyncio.create_subprocess_shell("creduce --not-c --no-default-passes --add-pass pass_lines 1 0 " + f"{output_dir}{language}-interestingness_test.sh " + f"{output_dir}main.dfy", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        if output_dir:
+            process = await asyncio.create_subprocess_shell("creduce --not-c --no-default-passes --add-pass pass_lines 1 0 " + f"{language}-interestingness_test.sh " + f"main.dfy", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=output_dir)
+        else:
+            process = await asyncio.create_subprocess_shell("creduce --not-c --no-default-passes --add-pass pass_lines 1 0 " + f"{language}-interestingness_test.sh " + f"main.dfy", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout, stderr = await process.communicate()
         print(f"creduce stdout: {stdout.decode()}")
         print(f"creduce stderr: {stderr.decode()}")
