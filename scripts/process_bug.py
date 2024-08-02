@@ -84,7 +84,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
         # Copy interestingness test, fuzz_d.log, main.dfy to folder for the task in S3
         os.makedirs(f"tmp/{language}", exist_ok=True)
         subprocess.run(["cp", f"{output_dir}{language}-interestingness_test.sh", f"tmp/{language}/interestingness_test.sh"], check=True)
-        subprocess.run(["cp", f"{output_dir}main.dfy", f"tmp/{language}/"], check=True)
+        subprocess.run(["cp", f"{output_dir}main.dfy", f"tmp/{language}/main.dfy"], check=True)
 
         with open(f"tmp/{language}/data.txt", 'w') as f:
             f.write(f"{branch}\n")

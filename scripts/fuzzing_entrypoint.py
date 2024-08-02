@@ -26,12 +26,12 @@ if __name__ == "__main__":
             output_dir = output.stdout.split(': ')[-1].strip()
             uuid = output_dir.split('/')[-1]
             bugs = match_error(f"{output_dir}/fuzz-d.log")
+            print(bugs)
             # Figure out if we can validate with interpreter
             interpret = True
             result = subprocess.call(["java", "-jar", "fuzz_d.jar", "interpret", output_dir + "/main.dfy"])
             if result == 1:
                 interpret = False
-                subprocess.call(["java", "-jar", "fuzz_d.jar", "validate", output_dir + "/main.dfy"])
 
             threads = []
             for language, bug in bugs.items():
