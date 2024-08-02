@@ -79,7 +79,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
     if language == "miscompilation" or not (is_fuzz_d_error(bug) or is_duplicate("master", language, hashed_bug) or is_duplicate(branch, language, hashed_bug)):
         print("Found interesting case in " + language)
 
-        generate_interestingness_test(output_dir, interpret, hashed_bug, language)
+        generate_interestingness_test(output_dir, interpret, bug, language)
 
         # Copy interestingness test, fuzz_d.log, main.dfy to folder for the task in S3
         os.makedirs(f"tmp/{language}", exist_ok=True)
