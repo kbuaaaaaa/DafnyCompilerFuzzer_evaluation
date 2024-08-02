@@ -149,7 +149,9 @@ jobs:
           task-definition: ${{ steps.render-task-def.outputs.task-definition }}
       - name: Deploy ECS Task
         run: |
-          aws ecs run-task --cluster ${{ secrets.ECS_CLUSTER }} --task-definition ${{ steps.register-task-def.outputs.task-definition-arn }} --count ${{github.event.inputs.instance}}
+          for ((i=0; i<=${{github.event.inputs.instance}}; i++)); do
+            aws ecs run-task --cluster ${{ secrets.ECS_CLUSTER }} --task-definition ${{ steps.register-task-def.outputs.task-definition-arn }} --count 10
+          done
   FuzzExistingImage:
     runs-on: ubuntu-latest
     needs: CheckImage
