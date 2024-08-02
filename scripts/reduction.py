@@ -10,6 +10,8 @@ async def reduction(processing=False, output_dir=None, language=None, interpret=
         os.makedirs(f"{output_dir}creduce-{language}", exist_ok=True)
         shutil.copy(f"{output_dir}main.dfy", f"{output_dir}creduce-{language}/main.dfy")
         shutil.copy(f"{output_dir}{language}-interestingness_test.sh", f"{output_dir}creduce-{language}/{language}-interestingness_test.sh")
+        process = await asyncio.create_subprocess_shell(f"./{language}-interestingness_test.sh", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{output_dir}creduce-{language}")
+        print(f"interestingness_test returns: {process.returncode}")
         process = await asyncio.create_subprocess_shell("creduce --not-c --no-default-passes --add-pass pass_lines 1 0 " + f"{language}-interestingness_test.sh " + f"main.dfy", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{output_dir}creduce-{language}")
         stdout, stderr = await process.communicate()
         print(f"creduce stdout: {stdout.decode()}")

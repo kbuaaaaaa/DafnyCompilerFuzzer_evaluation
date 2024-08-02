@@ -33,7 +33,7 @@ def extract_code_from_issue_body(issue_no):
         print(f"Skipping issue {issue_no} due to unwanted labels")
         return code
     
-    if '```dafny' in issue_body and not re.search(r'[dD]afny (?!build|run)', issue_body):
+    if '```dafny' in issue_body and not re.search(r'[dD]afny (resolve|verify|format|doc|measure-complexity|server|test|generate-tests|find-dead-code|audit|merge-coverage-reports)', issue_body):
         code = issue_body.split('```dafny')[1].split('```')[0]
     else:
         print(f"Skipping issue {issue_no} due to no dafny code block or unrelated command")
