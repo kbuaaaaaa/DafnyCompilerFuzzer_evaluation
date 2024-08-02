@@ -39,7 +39,7 @@ if __name__ == "__main__":
         threads = []
         for language, bug in bugs.items():
             if bug:
-                t = Thread(target=process_bug_handler, args=(output_dir, language, bug, branch, interpret, main_commit, current_branch_commit, False))
+                t = Thread(target=process_bug_handler, args=(output_dir, language, bug, branch, interpret, main_commit, current_branch_commit, False, "None"))
                 threads.append(t)
                 t.start()
 
