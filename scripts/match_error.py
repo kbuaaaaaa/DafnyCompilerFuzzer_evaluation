@@ -65,6 +65,7 @@ def match_error(fuzzd_log):
                     for pattern in patterns:
                         matches = re.findall(pattern, content)
                         for match in matches:
+                            match = match.rstrip('\n')
                             result[lang].add(match)
                 
             # Check execution failure
@@ -76,6 +77,7 @@ def match_error(fuzzd_log):
                     for pattern in patterns:
                         matches = re.findall(pattern, content)
                         for match in matches:
+                            match = match.rstrip('\n')
                             result[lang].add(match)
 
     except Exception as e:
