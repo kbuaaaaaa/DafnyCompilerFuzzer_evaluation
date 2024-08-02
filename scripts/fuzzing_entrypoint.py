@@ -43,6 +43,8 @@ if __name__ == "__main__":
             # Wait for all threads to finish
             for t in threads:
                 t.join()
+            if output_dir:
+                subprocess.run(["rm", "-rf", output_dir])
         else:
             print("Fuzz-d crashed")
 
