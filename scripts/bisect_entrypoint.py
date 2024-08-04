@@ -30,7 +30,7 @@ if __name__ == "__main__":
     first_bad_commit = "undetermined"
     if location == "master":
         #This is the last point that fuzz-d program guarantee to work
-        last_good_commit = "adfc8689a8a6d4bd113b2271887dd4850125169e"
+        last_good_commit = "ad1a7bdd0018a0f248647b547d48eef83d6b9435"
         manual_investigation = False
         result = subprocess.call(["./bisect_script.sh", last_good_commit])
         if result:
