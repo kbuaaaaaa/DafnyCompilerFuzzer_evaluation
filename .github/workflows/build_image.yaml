@@ -1,4 +1,4 @@
-name: Fuzz
+name: BuildImage
 on:
   workflow_dispatch:
     inputs:
