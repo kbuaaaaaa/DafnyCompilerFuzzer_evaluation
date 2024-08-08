@@ -162,7 +162,8 @@ def lambda_handler(event, context):
             comment_on_pr(first_bad_commit, language, behaviour, command, output, location)
 
     # Move the folder to the bugs/first_bad_commit/category directory
-    new_folder_name = f'bugs/{location}/{hashed_bug}/'
+    print("Moving bug into database")
+    new_folder_name = f'bugs/{location}/{language}/{hashed_bug}/'
     response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=folder_name)
     for obj in response['Contents']:
         old_key = obj['Key']
