@@ -38,12 +38,11 @@ if __name__ == "__main__":
             manual_investigation = True
                 
         if not manual_investigation:
-            subprocess.run(["git", "checkout", "master"], check=True, cwd='dafny')
+            subprocess.run(["git", "checkout", main_commit], check=True, cwd='dafny')
             # Get the latest commit on the current branch
-            latest_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd='dafny').decode().strip()
             print("Bisecting on master")
             # Start the bisect process
-            subprocess.run(["git", "bisect", "start", latest_commit, last_good_commit, "--no-checkout"], check=True, cwd='dafny')
+            subprocess.run(["git", "bisect", "start", main_commit, last_good_commit, "--no-checkout"], check=True, cwd='dafny')
 
             # Run the bisect script and capture the first bad commit
             result = subprocess.run(["git", "bisect", "run", "/compfuzzci/bisect_script.sh"], cwd='dafny', capture_output=True, text=True)
