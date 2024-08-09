@@ -43,12 +43,31 @@ if __name__ == "__main__":
             print("Bisecting on master")
             # Start the bisect process
             subprocess.run(["git", "bisect", "start", main_commit, last_good_commit, "--no-checkout"], check=True, cwd='dafny')
+            # Start the subprocess
+            process = subprocess.Popen(
+                ["git", "bisect", "run", "/compfuzzci/bisect_script.sh"],
+                cwd='dafny',
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
 
-            # Run the bisect script and capture the first bad commit
-            result = subprocess.run(["git", "bisect", "run", "/compfuzzci/bisect_script.sh"], cwd='dafny', capture_output=True, text=True)
-            output = result.stdout.strip()
-            first_bad_commit = next((line.replace(' is the first bad commit', '') for line in output.split('\n') if 'is the first bad commit' in line), None)
-            return_code = result.returncode
+            # Read and print the output in real time
+            while True:
+                output = process.stdout.readline()
+                if output == '' and process.poll() is not None:
+                    break
+                if output:
+                    if ' is the first bad commit' in output:
+                        first_bad_commit = output.replace(' is the first bad commit', '')
+                    print(output.strip())
+
+            # Capture the remaining output (if any)
+            stderr = process.communicate()[1]
+            if stderr:
+                print(stderr.strip())
+
+            return_code = process.returncode
             if return_code:
                 print("Bisect failed")
                 first_bad_commit = "undetermined"
