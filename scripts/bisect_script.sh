@@ -12,7 +12,7 @@ echo "Building Dafny"
 make exe > /dev/null 2>&1
 
 echo "Building Z3"
-yes | make z3-ubuntu > /dev/null 2>&1
+All | make z3-ubuntu > /dev/null 2>&1
 cd ..
 
 echo "Running interestingness test"
