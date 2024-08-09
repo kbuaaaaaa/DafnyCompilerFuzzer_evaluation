@@ -9,7 +9,8 @@ if [[ $(pwd) != */dafny ]]; then
 fi
 git checkout $COMMIT
 echo "Building Dafny"
-yes | make exe > /dev/null 2>&1
+make exe > /dev/null 2>&1
+
 echo "Building Z3"
 yes | make z3-ubuntu > /dev/null 2>&1
 cd ..
