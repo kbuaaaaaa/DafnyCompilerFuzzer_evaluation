@@ -142,7 +142,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
         print("Done")
         return 0
     else:
-        print("Not interesting")
+        print(f"Not interesting: Duplicate or known error in {language}")
         return 0
 
 def process_bug_handler(output_dir, language, bug, branch, interpret, main_commit, current_branch_commit, processing, issue_no):
