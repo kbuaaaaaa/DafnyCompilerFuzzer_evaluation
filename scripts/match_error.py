@@ -3,9 +3,9 @@ import sys
 import hashlib
 
 # Regex patterns
-JavaErrorPatterns = [r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandled exception\. .+\n', r'Unhandled exception: .+\n', r'error: .*\n', r'Exception in thread .+\n', r'System.NotImplementedException: The method or operation is not implemented.',r'\[.*\] .*\n']
-CSErrorPatterns = [r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandled exception\. .+\n', r'Unhandled exception: .+\n', r'error CS\d{4}: .+\n',r'System.NotImplementedException: The method or operation is not implemented.',r'\[.*\] .*\n']
-RustErrorPatterns = [r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandled exception\. .+\n', r'Unhandled exception: .+\n', r'error\[E\d{4}\]',r'System.NotImplementedException: The method or operation is not implemented.',r'\[.*\] .*\n']
+JavaErrorPatterns = [r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandled exception\. .+\n', r'Unhandled exception: .+\n', r'error: .*\n', r'Exception in thread .+\n', r'System.NotImplementedException: The method or operation is not implemented.',r'\[Program halted\] .*\n']
+CSErrorPatterns = [r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandled exception\. .+\n', r'Unhandled exception: .+\n', r'error CS\d{4}: .+\n',r'System.NotImplementedException: The method or operation is not implemented.',r'\[Program halted\] .*\n']
+RustErrorPatterns = [r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandled exception\. .+\n', r'Unhandled exception: .+\n', r'error\[E\d{4}\]',r'System.NotImplementedException: The method or operation is not implemented.',r'\[Program halted\] .*\n']
 PythonErrorPatterns = [ r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandled exception\. .+\n', r'Unhandled exception: .+\n',
     r'SyntaxError: .+\n', r'NameError: .+\n', r'TypeError: .+\n', r'IndexError: .+\n', 
     r'ValueError: .+\n', r'KeyError: .+\n', r'AttributeError: .+\n', r'IndentationError: .+\n', 
@@ -16,14 +16,14 @@ PythonErrorPatterns = [ r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandle
     r'TabError: .+\n', r'SystemError: .+\n', r'SystemExit: .+\n', r'UnboundLocalError: .+\n', 
     r'UnicodeError: .+\n', r'UnicodeEncodeError: .+\n', r'UnicodeDecodeError: .+\n', 
     r'UnicodeTranslateError: .+\n',r'System.NotImplementedException: The method or operation is not implemented.',
-    r'\[.*\] .*\n'
+    r'\[Program halted\] .*\n'
 ]
 JavaScriptErrorPatterns = [ r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandled exception\. .+\n', r'Unhandled exception: .+\n',
     r'SyntaxError: .+\n', r'TypeError: .+\n', r'RangeError: .+\n', r'ReferenceError: .+\n', 
     r'URIError: .+\n', r'EvalError: .+\n', r'InternalError: .+\n', r'AggregateError: .+\n',r'System.NotImplementedException: The method or operation is not implemented.',
-    r'\[.*\] .*\n'
+    r'\[Program halted\] .*\n'
 ]
-GoErrorPatterns = [ r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandled exception\. .+\n', r'Unhandled exception: .+\n',r'System.NotImplementedException: The method or operation is not implemented.', r'.*:\d+:\d+: .*\n', r'\[.*\] .*\n', r'fatal error: .*\n']
+GoErrorPatterns = [ r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandled exception\. .+\n', r'Unhandled exception: .+\n',r'System.NotImplementedException: The method or operation is not implemented.', r'.*:\d+:\d+: .*\n', r'\[Program halted\] .*\n', r'fatal error: .*\n']
 
 # Map language identifiers to their respective regex patterns
 error_patterns = {
