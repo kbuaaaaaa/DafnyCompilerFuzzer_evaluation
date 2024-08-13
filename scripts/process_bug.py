@@ -19,7 +19,7 @@ S3_folder = "s3://compfuzzci/tmp/" + TASK_ID
 s3 = boto3.resource('s3')
 
 def is_fuzz_d_error(bug):
-    known_errors = ["All elements of display must have some common supertype", "type of left argument to +", "type parameter is not declared in this scope", "Error: the type of this expression is underspecified", "Error: branches of if-then-else have incompatible types", "Error: the two branches of an if-then-else expression must have the same type", "incompatible types"]
+    known_errors = ["All elements of display must have some common supertype", "type of left argument to +", "type parameter is not declared in this scope", "Error: the type of this expression is underspecified", "Error: branches of if-then-else have incompatible types", "Error: the two branches of an if-then-else expression must have the same type", "incompatible types", "EmitIndexCollectionUpdate for multiset"]
     for error in known_errors:
         for b in bug:
             if error in b:
@@ -80,7 +80,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
         print("Found interesting case in " + language)
 
         generate_interestingness_test(output_dir, interpret, bug, language)
-        
+
         if not processing:
             process = await asyncio.create_subprocess_shell(f"./{language}-interestingness_test.sh", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{output_dir}")
             await process.communicate()
