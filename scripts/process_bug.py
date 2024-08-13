@@ -49,12 +49,6 @@ def is_duplicate(branch="master", language= "dafny", hashed_bug=""):
 async def process_bug(output_dir, language, bug, branch, interpret, main_commit, current_branch_commit, processing=False, issue_no="None"):
 
     async def handle_bisection_reduction():
-        if not processing:
-            process = await asyncio.create_subprocess_shell(f"./{language}-interestingness_test.sh", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{output_dir}")
-            await process.communicate()
-            print(f"interestingness_test returns: {process.returncode}")
-            if process.returncode != 0:
-                return 0
         reduction_task = asyncio.create_task(reduction(processing, output_dir, language, interpret))
         bisection_result = await bisection(f"{S3_folder}/{language}/", current_branch_commit)
         print(f"Bisection result arrived: Location={bisection_result[0]}, First bad commit={bisection_result[1]}")
@@ -86,6 +80,13 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
         print("Found interesting case in " + language)
 
         generate_interestingness_test(output_dir, interpret, bug, language)
+        
+        if not processing:
+            process = await asyncio.create_subprocess_shell(f"./{language}-interestingness_test.sh", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{output_dir}")
+            await process.communicate()
+            print(f"interestingness_test returns: {process.returncode}")
+            if process.returncode != 0:
+                return 0
 
         # Copy interestingness test, fuzz_d.log, main.dfy to folder for the task in S3
         os.makedirs(f"tmp/{language}", exist_ok=True)
