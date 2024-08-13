@@ -49,6 +49,12 @@ def is_duplicate(branch="master", language= "dafny", hashed_bug=""):
 async def process_bug(output_dir, language, bug, branch, interpret, main_commit, current_branch_commit, processing=False, issue_no="None"):
 
     async def handle_bisection_reduction():
+        if not processing:
+            process = await asyncio.create_subprocess_shell(f"./{language}-interestingness_test.sh", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{output_dir}creduce-{language}")
+            await process.communicate()
+            print(f"interestingness_test returns: {process.returncode}")
+            if process.returncode != 0:
+                return 0
         reduction_task = asyncio.create_task(reduction(processing, output_dir, language, interpret))
         bisection_result = await bisection(f"{S3_folder}/{language}/", current_branch_commit)
         print(f"Bisection result arrived: Location={bisection_result[0]}, First bad commit={bisection_result[1]}")
