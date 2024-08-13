@@ -50,7 +50,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
 
     async def handle_bisection_reduction():
         if not processing:
-            process = await asyncio.create_subprocess_shell(f"./{language}-interestingness_test.sh", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{output_dir}creduce-{language}")
+            process = await asyncio.create_subprocess_shell(f"./{language}-interestingness_test.sh", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{output_dir}")
             await process.communicate()
             print(f"interestingness_test returns: {process.returncode}")
             if process.returncode != 0:
