@@ -188,7 +188,7 @@ jobs:
           task-definition: ${{ steps.render-task-def.outputs.task-definition }}
       - name: Deploy ECS Task
         run: |
-          for ((i=0; i<=${{github.event.inputs.instance}}; i++)); do
+          for ((i=0; i<${{github.event.inputs.instance}}; i++)); do
             aws ecs run-task --cluster ${{ secrets.ECS_CLUSTER }} --task-definition ${{ steps.register-task-def.outputs.task-definition-arn }} --count 10
           done
     
