@@ -8,8 +8,8 @@
             "name": "fuzzing-container",
             "image": "",
             "essential": true,
-            "cpu": 4096,
-            "memoryReservation": 6144,
+            "cpu": 2048,
+            "memoryReservation": 3072,
             "command": [
                 ""
             ],
