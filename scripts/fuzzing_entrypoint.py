@@ -28,10 +28,7 @@ if __name__ == "__main__":
             bugs = match_error(f"{output_dir}/fuzz-d.log")
             print(bugs)
             # Figure out if we can validate with interpreter
-            interpret = True
-            result = subprocess.call(["java", "-jar", "fuzz_d.jar", "interpret", output_dir + "/main.dfy"])
-            if result == 1:
-                interpret = False
+            interpret = False
 
             threads = []
             for language, bug in bugs.items():
