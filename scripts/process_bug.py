@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import requests
 import boto3
@@ -82,8 +83,12 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
         generate_interestingness_test(output_dir, interpret, bug, language)
 
         if not processing:
-            process = await asyncio.create_subprocess_shell(f"./{language}-interestingness_test.sh", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{output_dir}")
+            os.makedirs(f"{language}-tmp", exist_ok=True)
+            shutil.copy(f"{output_dir}main.dfy", f"{language}-tmp/main.dfy")
+            shutil.copy(f"{output_dir}{language}-interestingness_test.sh", f"{language}-tmp/{language}-interestingness_test.sh")
+            process = await asyncio.create_subprocess_shell(f"./{language}-interestingness_test.sh", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{language}-tmp")
             await process.communicate()
+            os.remove(f"{language}-tmp/main.dfy")
             print(f"interestingness_test returns: {process.returncode}")
             if process.returncode != 0:
                 return 0
