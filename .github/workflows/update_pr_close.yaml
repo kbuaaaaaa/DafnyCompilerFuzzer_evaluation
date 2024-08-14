@@ -3,10 +3,10 @@ name: Update PR Close
 on:
   workflow_dispatch:
     inputs:
-      pr_number:
-        description: 'PR number to close'
+      pr_head_ref:
+        description: 'PR head to close'
         required: true
-        type: number
+        type: string
 permissions:
   id-token: write
   contents: read
@@ -25,4 +25,4 @@ jobs:
           aws-region: ${{secrets.AWS_REGION}}
       - name: Remove folder in S3
         run: |
-          aws s3 rm s3://compfuzzci/bugs/${{ github.event.inputs.pr_number }} --recursive
+          aws s3 rm s3://compfuzzci/bugs/${{ github.event.inputs.pr_head_ref }} --recursive
