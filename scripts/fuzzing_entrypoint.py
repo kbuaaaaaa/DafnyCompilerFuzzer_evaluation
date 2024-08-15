@@ -20,7 +20,7 @@ if __name__ == "__main__":
     current_branch_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd='dafny').decode().strip()
     while (time.time() - start_time) < duration:
         # Fuzz until we hit an interesting case
-        print("Fuzzing...")
+        print(f"Fuzzing commit {current_branch_commit}")
         output = subprocess.run(["timeout", "60", "java", "-jar", "fuzz_d.jar", "fuzz"], capture_output=True, text=True)
         if output.returncode == 0:
             output_dir = output.stdout.split(': ')[-1].strip()
