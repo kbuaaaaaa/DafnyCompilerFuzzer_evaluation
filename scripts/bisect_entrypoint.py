@@ -50,8 +50,6 @@ if __name__ == "__main__":
                     ["git", "bisect", "run", "/compfuzzci/bisect_script.sh"],
                     cwd='dafny',
                     capture_output=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
                     text=True,
                     timeout=900
                 )
@@ -81,8 +79,6 @@ if __name__ == "__main__":
                     ["git", "bisect", "run", "/compfuzzci/bisect_script.sh"],
                     cwd='dafny',
                     capture_output=True,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
                     text=True,
                     timeout=900
                 )
