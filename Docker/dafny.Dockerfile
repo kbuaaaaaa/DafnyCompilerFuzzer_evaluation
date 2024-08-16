@@ -1,4 +1,4 @@
-FROM --platform=linux/x86_64 public.ecr.aws/b9c4d6t3/compfuzzci-base:latest
+FROM --platform=linux/x86_64 public.ecr.aws/compfuzzci/compfuzzci-base:latest
 COPY entrypoint.sh /compfuzzci/entrypoint.sh
 WORKDIR /compfuzzci
 ARG COMMIT
