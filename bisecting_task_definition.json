@@ -8,8 +8,8 @@
             "name": "bisecting-container",
             "image": "",
             "essential": true,
-            "cpu": 2048,
-            "memoryReservation": 3072,
+            "cpu": 1024,
+            "memoryReservation": 1536,
             "command": [
                 ""
             ],
