@@ -11,6 +11,12 @@ git checkout $COMMIT
 echo "Building Dafny"
 make exe > /dev/null 2>&1
 
+# Check if the make command failed
+if [ $? -ne 0 ]; then
+  make clean
+  make exe > /dev/null 2>&1
+fi
+
 echo "Building Z3"
 yes All | make z3-ubuntu > /dev/null 2>&1
 cd ..
