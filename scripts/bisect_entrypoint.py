@@ -30,7 +30,7 @@ if __name__ == "__main__":
     first_bad_commit = "undetermined"
     if location == "master":
         #This is the last point that fuzz-d program guarantee to work
-        last_good_commit = "510b67904b38c1ea429b00287ff0a2d444e2273f"
+        last_good_commit = "8a5a5945d6eefc552bdc39a3868dd34bb38a49d4"
         manual_investigation = False
         result = subprocess.call(["./bisect_script.sh", last_good_commit])
         if result:
@@ -92,7 +92,6 @@ if __name__ == "__main__":
                 print("Bisect timed out")
                 first_bad_commit = branch_commit
             print(f"First bad commit: {first_bad_commit}")
-
 
     with open("bisect_result.txt", 'w') as file_obj:
         file_obj.write(f"{location}\n")
