@@ -104,6 +104,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
             f.write(f"{main_commit}\n")
             f.write(f"{current_branch_commit}\n")
             f.write(f"{hashed_bug}\n")
+            f.write(f"{processing}\n")
         f.close()
         subprocess.run(["aws", "s3", "cp", f"tmp/{language}/", f"{S3_folder}/{language}/", "--recursive"], check=True)
         subprocess.run(["rm", "-rf", f"tmp/{language}"], check=True)
