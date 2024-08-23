@@ -19,6 +19,8 @@ else
   echo "Dafny built successfully"
 fi
 
+echo $(dafny /version)
+
 echo "Building Z3"
 yes All | make z3-ubuntu > /dev/null 2>&1
 cd ..
