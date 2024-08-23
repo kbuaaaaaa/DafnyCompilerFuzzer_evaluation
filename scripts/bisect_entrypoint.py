@@ -32,7 +32,7 @@ if __name__ == "__main__":
         #This is the last point that fuzz-d program guarantee to work
         last_good_commit = "8a5a5945d6eefc552bdc39a3868dd34bb38a49d4"
         manual_investigation = False
-        result = subprocess.call(["./bisect_script.sh", last_good_commit])
+        result = subprocess.call(["./bisect_script.sh", last_good_commit], cwd='dafny')
         if result:
             print("Bug needs manual investigation")
             manual_investigation = True
