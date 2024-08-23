@@ -98,7 +98,10 @@ def match_error(fuzzd_log):
     if "Different output: true" in log_content:
         result['miscompilation'] = True
     
-    common_errors = set(result['rs']).intersection(result['cs'], result['js'], result['py'], result['java'], result['go'])
+    if result['rs']:
+        common_errors = set(result['rs']).intersection(result['cs'], result['js'], result['py'], result['java'], result['go'])
+    else:
+        common_errors = set(result['cs']).intersection(result['js'], result['py'], result['java'], result['go'])
     if common_errors:
         result['dafny'] = list(common_errors)
         for lang in ['rs', 'cs', 'js', 'py', 'java', 'go']:
