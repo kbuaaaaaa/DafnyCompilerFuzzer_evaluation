@@ -3,6 +3,10 @@ COMMIT=${1:-$(git rev-parse BISECT_HEAD)}
 
 echo "Bisecting at commit $COMMIT"
 
+# Make the right version of dafny
+if [[ $(pwd) != */dafny ]]; then
+  cd dafny
+fi
 git checkout $COMMIT
 echo "Building Dafny"
 # Check if the make command failed
