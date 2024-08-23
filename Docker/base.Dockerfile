@@ -14,7 +14,7 @@ RUN ./aws/install
 RUN apt-get install -y dotnet-sdk-6.0
 
 #Install Java
-RUN apt install -y openjdk-19-jdk
+RUN apt install -y openjdk-17-jdk
 
 #Install NodeJS
 RUN apt install -y nodejs npm

@@ -10,9 +10,13 @@ fi
 git checkout $COMMIT
 echo "Building Dafny"
 # Check if the make command failed
-if ! make exe; then
-  make clean
-  make exe
+if ! make exe > /dev/null 2>&1; then
+  make clean > /dev/null 2>&1
+  if ! make exe > /dev/null 2>&1; then
+    echo "Dafny failed to build"
+  fi
+else
+  echo "Dafny built successfully"
 fi
 
 echo "Building Z3"
