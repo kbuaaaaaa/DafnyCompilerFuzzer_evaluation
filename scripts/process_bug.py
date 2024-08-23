@@ -20,7 +20,7 @@ S3_folder = "s3://compfuzzci/tmp/" + TASK_ID
 s3 = boto3.resource('s3')
 
 def is_fuzz_d_error(bug):
-    known_errors = ["All elements of display must have some common supertype", "type of left argument to +", "type parameter is not declared in this scope", "Error: the type of this expression is underspecified", "Error: branches of if-then-else have incompatible types", "Error: the two branches of an if-then-else expression must have the same type", "incompatible types", "EmitIndexCollectionUpdate for multiset"]
+    known_errors = ["All elements of display must have some common supertype", "type of left argument to +", "type parameter is not declared in this scope", "Error: the type of this expression is underspecified", "Error: branches of if-then-else have incompatible types", "Error: the two branches of an if-then-else expression must have the same type", "incompatible types", "EmitIndexCollectionUpdate for multiset", "Unespected field to assign whose isAssignedVar is not in the environment"]
     for error in known_errors:
         for b in bug:
             if error in b:
