@@ -22,7 +22,7 @@ if __name__ == "__main__":
 
     os.makedirs("bisection", exist_ok=True)
     # Create an empty text file in the "bisection" folder
-    with open("bisection/bisect_order.txt", 'w') as file_obj:
+    with open("bisection/commit_order.txt", 'w') as file_obj:
         pass
 
     if processing == "False":  
