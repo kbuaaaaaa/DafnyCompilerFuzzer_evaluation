@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 import boto3
@@ -18,6 +19,11 @@ if __name__ == "__main__":
         branch_commit = f.readline().strip()
         hashed_bug = f.readline().strip()
         processing = f.readline().strip()
+
+    os.makedirs("bisection", exist_ok=True)
+    # Create an empty text file in the "bisection" folder
+    with open("bisection/bisect_order.txt", 'w') as file_obj:
+        pass
 
     if processing == "False":  
         location = branch
@@ -98,3 +104,4 @@ if __name__ == "__main__":
         file_obj.write(f"{first_bad_commit}\n")
 
     subprocess.run(["aws", "s3", "cp", "bisect_result.txt", f"{file_folder}bisect_result.txt"], check=True)
+    subprocess.run(["aws", "s3", "cp", "bisection/", f"{file_folder}bisection/", "--recursive"], check=True)
