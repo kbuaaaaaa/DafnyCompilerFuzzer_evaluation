@@ -28,8 +28,12 @@ if __name__ == "__main__":
     if processing == "False":  
         location = branch
         # Get the location of the bug
+        print("Checking if bug is on master")
         if subprocess.call(["./bisect_script.sh", main_commit]):
+            print("Bug is on master")
             location = "master"
+        else:
+            print("Bug is on branch")
     else:
         location = "master"
 
