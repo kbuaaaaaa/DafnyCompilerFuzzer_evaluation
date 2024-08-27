@@ -7,7 +7,7 @@ async def reduction(processing=False, output_dir=None, language=None, interpret=
     # Reduce the test case
     try:
         print("Reducing...")
-        process = await asyncio.create_subprocess_shell("timeout 900 java -jar perses.jar --input-file " + f"{output_dir}main.dfy --test-script " + f"{output_dir}{language}-interestingness_test.sh --output-dir " + f"{output_dir}reduced_{language}/", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        process = await asyncio.create_subprocess_shell("timeout 1800 java -jar perses.jar --input-file " + f"{output_dir}main.dfy --test-script " + f"{output_dir}{language}-interestingness_test.sh --output-dir " + f"{output_dir}reduced_{language}/", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout, stderr = await process.communicate()
         print(f"perses stdout: {stdout.decode()}")
         print(f"perses stderr: {stderr.decode()}") 

@@ -61,7 +61,7 @@ if __name__ == "__main__":
                     cwd='dafny',
                     capture_output=True,
                     text=True,
-                    timeout=900
+                    timeout=1800
                 )
                 output = result.stdout.strip()
                 first_bad_commit = next((line.replace(' is the first bad commit', '') for line in output.split('\n') if 'is the first bad commit' in line), None)
@@ -90,7 +90,7 @@ if __name__ == "__main__":
                     cwd='dafny',
                     capture_output=True,
                     text=True,
-                    timeout=900
+                    timeout=1800
                 )
                 output = result.stdout.strip()
                 first_bad_commit = next((line.replace(' is the first bad commit', '') for line in output.split('\n') if 'is the first bad commit' in line), None)
