@@ -91,12 +91,11 @@ def match_error(fuzzd_log):
                                 print(match)
                                 match = ':'.join(match)
                             result[lang].add(match)
-
+                            
+            if "Different output: true" in log_content:
+                result['miscompilation'] = True
     except Exception as e:
         print(f"An error occurred: {str(e)}")
-
-    if "Different output: true" in log_content:
-        result['miscompilation'] = True
     
     if result['rs']:
         common_errors = set(result['rs']).intersection(result['cs'], result['js'], result['py'], result['java'], result['go'])
