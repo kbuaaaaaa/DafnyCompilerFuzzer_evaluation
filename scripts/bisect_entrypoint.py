@@ -77,7 +77,8 @@ if __name__ == "__main__":
 
     elif language == "miscompilation" and first_bad_commit == "undetermined":
             subprocess.run(["git", "checkout", branch_commit], check=True, cwd='dafny')
-            last_good_commit = subprocess.check_output(["git", "merge-base", "master", branch], cwd='dafny').decode().strip()
+            result = subprocess.run(["git", "merge-base", main_commit, branch_commit], cwd='dafny', capture_output=True, text=True)
+            last_good_commit = result.stdout.strip()
             print("Checking the branch's last merge base with master")
             result = subprocess.call(["./bisect_script.sh", last_good_commit])
             if result:
