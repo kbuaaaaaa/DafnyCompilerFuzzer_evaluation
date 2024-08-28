@@ -71,7 +71,6 @@ def match_error(fuzzd_log):
                             if lang == 'go' and pattern == GoErrorPatterns[4]:
                                 match = match.split(':')[3:]
                                 match[0] = match[0].lstrip()
-                                print(match)
                                 match = ':'.join(match)
                             result[lang].add(match)
                 
@@ -88,7 +87,6 @@ def match_error(fuzzd_log):
                             if lang == 'go' and pattern == GoErrorPatterns[5]:
                                 match = match.split(':')[3:]
                                 match[0] = match[0].lstrip()
-                                print(match)
                                 match = ':'.join(match)
                             result[lang].add(match)
                             
