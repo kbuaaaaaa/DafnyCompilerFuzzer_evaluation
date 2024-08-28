@@ -53,20 +53,21 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
         reduction_task = asyncio.create_task(reduction(processing, output_dir, language, interpret))
         bisection_result = await bisection(f"{S3_folder}/{language}/", current_branch_commit)
         print(f"Bisection result arrived: Location={bisection_result[0]}, First bad commit={bisection_result[1]}")
-        if language == "miscompilation" and is_duplicate(bisection_result[0], language, bisection_result[1]):
+        if bisection_result[1] == "duplicated":
+            print("Bug is duplicated. Cancelling reduction task.")
+            return 0
+        elif language == "miscompilation" and is_duplicate(bisection_result[0], language, bisection_result[1]):
             reduction_task.cancel()
             try:
                 await reduction_task
             except asyncio.CancelledError:
-                print("Function b was cancelled successfully.")
+                print("Bug is duplicated. Reduction task cancelled.")
             return 0
         else:
             print("Waiting for reduction")
-            reduction_result = await reduction_task
+            await reduction_task
             print("Reduction result arrived")
-            if not reduction_result:
-                return 0
-            return bisection_result
+            return 1
     
     # this check only pass if bug is not duplicate anywhere.
     if language != "miscompilation":

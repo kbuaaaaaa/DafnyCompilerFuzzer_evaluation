@@ -77,31 +77,48 @@ if __name__ == "__main__":
 
     elif language == "miscompilation" and first_bad_commit == "undetermined":
             subprocess.run(["git", "checkout", branch_commit], check=True, cwd='dafny')
-            last_good_commit = subprocess.check_output(["git", "rev-list", "--max-parents=0", "HEAD"], cwd='dafny').decode().strip()
-
-            print(f"Bisecting on {location}")
-            # Start the bisect process
-            subprocess.run(["git", "bisect", "start", branch_commit, last_good_commit, "--no-checkout"], check=True, cwd='dafny')
-                        
-            # Run the bisect script and capture the first bad commit
-            try:
-                result = subprocess.run(
-                    ["git", "bisect", "run", "/compfuzzci/bisect_script.sh"],
-                    cwd='dafny',
-                    capture_output=True,
-                    text=True,
-                    timeout=1800
-                )
-                output = result.stdout.strip()
-                first_bad_commit = next((line.replace(' is the first bad commit', '') for line in output.split('\n') if 'is the first bad commit' in line), None)
-                return_code = result.returncode
-                if return_code:
-                    print("Bisect failed")
+            last_good_commit = subprocess.check_output(["git", "merge-base", "master", branch], cwd='dafny').decode().strip()
+            print("Checking the branch's last merge base with master")
+            result = subprocess.call(["./bisect_script.sh", last_good_commit])
+            if result:
+                print("Branch out of date. Bug has already been fixed on master")
+                first_bad_commit = "deplicated"
+            else:
+                print("Bug is introduced in the branch")
+                print(f"Bisecting on {location}")
+                # Start the bisect process
+                subprocess.run(["git", "bisect", "start", branch_commit, last_good_commit, "--no-checkout"], check=True, cwd='dafny')
+                            
+                # Run the bisect script and capture the first bad commit
+                try:
+                    result = subprocess.run(
+                        ["git", "bisect", "run", "/compfuzzci/bisect_script.sh"],
+                        cwd='dafny',
+                        capture_output=True,
+                        text=True,
+                        timeout=1800
+                    )
+                    output = result.stdout.strip()
+                    first_bad_commit = next((line.replace(' is the first bad commit', '') for line in output.split('\n') if 'is the first bad commit' in line), None)
+                    return_code = result.returncode
+                    if return_code:
+                        print("Bisect failed")
+                        first_bad_commit = branch_commit
+                except subprocess.TimeoutExpired:
+                    print("Bisect timed out")
                     first_bad_commit = branch_commit
-            except subprocess.TimeoutExpired:
-                print("Bisect timed out")
-                first_bad_commit = branch_commit
-            print(f"First bad commit: {first_bad_commit}")
+                print(f"First bad commit: {first_bad_commit}")
+    else:
+        subprocess.run(["git", "checkout", branch_commit], check=True, cwd='dafny')
+        last_good_commit = subprocess.check_output(["git", "merge-base", "master", branch], cwd='dafny').decode().strip()
+        print("Checking the branch's last merge base with master")
+        result = subprocess.call(["./bisect_script.sh", last_good_commit])
+        if result:
+            print("Branch out of date. Bug has already been fixed on master")
+            first_bad_commit = "deplicated"
+        else:
+            first_bad_commit = "undetermined"
+
 
     with open("bisect_result.txt", 'w') as file_obj:
         file_obj.write(f"{location}\n")
