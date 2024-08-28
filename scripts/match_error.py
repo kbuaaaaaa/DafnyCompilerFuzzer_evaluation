@@ -95,10 +95,8 @@ def match_error(fuzzd_log):
     except Exception as e:
         print(f"An error occurred: {str(e)}")
     
-    if result['rs']:
-        common_errors = set(result['rs']).intersection(result['cs'], result['js'], result['py'], result['java'], result['go'])
-    else:
-        common_errors = set(result['cs']).intersection(result['js'], result['py'], result['java'], result['go'])
+
+    common_errors = set(result['cs']).intersection(result['js'], result['py'], result['java'], result['go'])
     if common_errors:
         result['dafny'] = list(common_errors)
         for lang in ['rs', 'cs', 'js', 'py', 'java', 'go']:
