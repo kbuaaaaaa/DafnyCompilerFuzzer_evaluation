@@ -77,7 +77,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
     if not processing:
             output_dir += "/"
 
-    if language != "miscompilation" and not (is_fuzz_d_error(bug) or is_duplicate("master", language, hashed_bug) or is_duplicate(branch, language, hashed_bug)):
+    if language == "miscompilation" or not (is_fuzz_d_error(bug) or is_duplicate("master", language, hashed_bug) or is_duplicate(branch, language, hashed_bug)):
         print("Found interesting case in " + language)
 
         generate_interestingness_test(output_dir, interpret, bug, language)
