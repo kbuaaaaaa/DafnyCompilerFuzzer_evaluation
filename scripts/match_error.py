@@ -85,7 +85,7 @@ def match_error(fuzzd_log):
                         matches = re.findall(pattern, content)
                         for match in matches:
                             match = match.rstrip('\n')
-                            if lang == 'go' and pattern == GoErrorPatterns[4]:
+                            if lang == 'go' and pattern == GoErrorPatterns[5]:
                                 match = match.split(':')[3:]
                                 match[0] = match[0].lstrip()
                                 print(match)
