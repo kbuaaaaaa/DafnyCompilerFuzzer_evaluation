@@ -16,7 +16,7 @@ def generate_interestingness_test(test_folder, interpret, bug, language):
                 f.write("    exit 1\n")
                 f.write("fi\n")
         else:
-            f.write("if ! grep -q \'Different output: true\' fuzz-d.log; then\n")
+            f.write("if ! grep -q \'{}\' fuzz-d.log; then\n".format(re.escape('Different output: true')))
             f.write("    echo 1\n")
             f.write("    exit 1\n")
             f.write("fi\n")
