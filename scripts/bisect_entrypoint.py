@@ -126,4 +126,4 @@ if __name__ == "__main__":
         file_obj.write(f"{first_bad_commit}\n")
 
     subprocess.run(["aws", "s3", "cp", "bisect_result.txt", f"{file_folder}bisect_result.txt"], check=True)
-    subprocess.run(["aws", "s3", "cp", "bisection/", f"{file_folder}bisection/", "--recursive"], check=True)
+    subprocess.run(["aws", "s3", "cp", "bisection/", f"s3://compfuzzci/bisection/{location}-{language}/", "--recursive"], check=True)
