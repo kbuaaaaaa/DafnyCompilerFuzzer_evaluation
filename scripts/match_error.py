@@ -3,7 +3,7 @@ import sys
 import hashlib
 
 # Regex patterns
-JavaErrorPatterns = [r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandled exception\. .+\n', r'Unhandled exception: .+\n', r'error: .*\n', r'Exception in thread .+\n', r'System.NotImplementedException: The method or operation is not implemented.',r'\[Program halted\] .*\n']
+JavaErrorPatterns = [r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandled exception\. .+\n', r'Unhandled exception: .+\n', r'error: .*\n', r'Exception in thread \"main\" java\.lang\..+\n', r'Caused by: java\.lang\..+\n', r'System.NotImplementedException: The method or operation is not implemented.',r'\[Program halted\] .*\n']
 CSErrorPatterns = [r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandled exception\. .+\n', r'Unhandled exception: .+\n', r'error CS\d{4}: .+\n',r'System.NotImplementedException: The method or operation is not implemented.',r'\[Program halted\] .*\n']
 RustErrorPatterns = [r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandled exception\. .+\n', r'Unhandled exception: .+\n', r'error\[E\d{4}\]',r'System.NotImplementedException: The method or operation is not implemented.',r'\[Program halted\] .*\n']
 PythonErrorPatterns = [ r'Error: .*\n', r'Process terminated\. .*\n', r'Unhandled exception\. .+\n', r'Unhandled exception: .+\n',
