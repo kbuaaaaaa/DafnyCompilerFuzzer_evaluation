@@ -111,7 +111,7 @@ if __name__ == "__main__":
                 print(f"First bad commit: {first_bad_commit}")
     else:
         subprocess.run(["git", "checkout", branch_commit], check=True, cwd='dafny')
-        last_good_commit = subprocess.check_output(["git", "merge-base", "master", branch], cwd='dafny').decode().strip()
+        last_good_commit = subprocess.check_output(["git", "merge-base", main_commit, branch_commit], cwd='dafny').decode().strip()
         print("Checking the branch's last merge base with master")
         result = subprocess.call(["./bisect_script.sh", last_good_commit])
         if result:
