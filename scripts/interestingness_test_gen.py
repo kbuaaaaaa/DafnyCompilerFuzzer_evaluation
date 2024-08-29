@@ -15,12 +15,12 @@ def generate_interestingness_test(test_folder, interpret, bug, language):
         
         if language != "miscompilation":
             for err in bug:
-                f.write("if ! grep -q \'{}\' fuzz-d.log; then\n".format(escape_for_grep(err)))
+                f.write("if grep -q \'{}\' fuzz-d.log; then\n".format(escape_for_grep(err)))
                 f.write("    echo 1\n")
                 f.write("    exit 1\n")
                 f.write("fi\n")
         else:
-            f.write("if ! grep -q \'{}\' fuzz-d.log; then\n".format(escape_for_grep("Different output: true")))
+            f.write("if grep -q \'{}\' fuzz-d.log; then\n".format(escape_for_grep("Different output: true")))
             f.write("    echo 1\n")
             f.write("    exit 1\n")
             f.write("fi\n")
