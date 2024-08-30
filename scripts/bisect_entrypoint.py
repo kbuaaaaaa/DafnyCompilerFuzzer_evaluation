@@ -38,10 +38,10 @@ if __name__ == "__main__":
         location = "master"
 
     first_bad_commit = "undetermined"
+    manual_investigation = False
     if location == "master":
         #This is the last point that fuzz-d program guarantee to work
         last_good_commit = "8a5a5945d6eefc552bdc39a3868dd34bb38a49d4"
-        manual_investigation = False
         result = subprocess.call(["./bisect_script.sh", last_good_commit])
         if result:
             print("Bug needs manual investigation")
@@ -54,26 +54,31 @@ if __name__ == "__main__":
             # Start the bisect process
             subprocess.run(["git", "bisect", "start", main_commit, last_good_commit, "--no-checkout"], check=True, cwd='dafny')
 
-            # Run the bisect script and capture the first bad commit
-            try:
-                result = subprocess.run(
-                    ["git", "bisect", "run", "/compfuzzci/bisect_script.sh"],
-                    cwd='dafny',
-                    capture_output=True,
-                    text=True,
-                    timeout=1800
-                )
-                output = result.stdout.strip()
-                first_bad_commit = next((line.replace(' is the first bad commit', '') for line in output.split('\n') if 'is the first bad commit' in line), None)
-                return_code = result.returncode
-                if return_code:
-                    print("Bisect failed")
-                    first_bad_commit = main_commit
-            except subprocess.TimeoutExpired:
-                print("Bisect timed out")
-                first_bad_commit = main_commit
+            # Start the subprocess
+            process = subprocess.Popen(
+                ["git", "bisect", "run", "/compfuzzci/bisect_script.sh"],
+                cwd='dafny',
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
 
-            print(f"First bad commit: {first_bad_commit}")
+            # Read and print the output in real time
+            while True:
+                output = process.stdout.readline()
+                if output == '' and process.poll() is not None:
+                    break
+                if output:
+                    if ' is the first bad commit' in output:
+                        first_bad_commit = output.replace(' is the first bad commit', '')
+                    print(output.strip())
+
+            # Capture the remaining output (if any)
+            stderr = process.communicate()[1]
+            if stderr:
+                print(stderr.strip())
+
+            return_code = process.returncode
 
     elif language == "miscompilation" and first_bad_commit == "undetermined":
             subprocess.run(["git", "checkout", branch_commit], check=True, cwd='dafny')
@@ -90,25 +95,30 @@ if __name__ == "__main__":
                 # Start the bisect process
                 subprocess.run(["git", "bisect", "start", branch_commit, last_good_commit, "--no-checkout"], check=True, cwd='dafny')
                             
-                # Run the bisect script and capture the first bad commit
-                try:
-                    result = subprocess.run(
-                        ["git", "bisect", "run", "/compfuzzci/bisect_script.sh"],
-                        cwd='dafny',
-                        capture_output=True,
-                        text=True,
-                        timeout=1800
-                    )
-                    output = result.stdout.strip()
-                    first_bad_commit = next((line.replace(' is the first bad commit', '') for line in output.split('\n') if 'is the first bad commit' in line), None)
-                    return_code = result.returncode
-                    if return_code:
-                        print("Bisect failed")
-                        first_bad_commit = branch_commit
-                except subprocess.TimeoutExpired:
-                    print("Bisect timed out")
-                    first_bad_commit = branch_commit
-                print(f"First bad commit: {first_bad_commit}")
+                # Start the subprocess
+                process = subprocess.Popen(
+                    ["git", "bisect", "run", "/compfuzzci/bisect_script.sh"],
+                    cwd='dafny',
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True
+                )
+
+                # Read and print the output in real time
+                while True:
+                    output = process.stdout.readline()
+                    if output == '' and process.poll() is not None:
+                        break
+                    if output:
+                        if ' is the first bad commit' in output:
+                            first_bad_commit = output.replace(' is the first bad commit', '')
+                        print(output.strip())
+
+                # Capture the remaining output (if any)
+                stderr = process.communicate()[1]
+                if stderr:
+                    print(stderr.strip())
+
     else:
         subprocess.run(["git", "checkout", branch_commit], check=True, cwd='dafny')
         last_good_commit = subprocess.check_output(["git", "merge-base", main_commit, branch_commit], cwd='dafny').decode().strip()
