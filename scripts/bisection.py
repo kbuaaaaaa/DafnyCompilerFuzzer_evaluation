@@ -3,6 +3,7 @@ import requests
 import os
 import boto3
 import botocore
+import time
 
 async def bisection(file_dir, commit):
     # Dispatch GitHub workflow using GitHub API
@@ -35,6 +36,7 @@ async def bisection(file_dir, commit):
         
     s3_client = boto3.client('s3')
     print(f"Checking S3 for result file: {s3_key}")
+    start_time = time.time()
     while True:
         # Check if result file is in S3
         try:
@@ -50,3 +52,9 @@ async def bisection(file_dir, commit):
                 await asyncio.sleep(5)
             else:
                 print("An error occurred while checking S3:", e)
+        
+        # Check if 30 minutes have passed
+        elapsed_time = time.time() - start_time
+        if elapsed_time >= 1800:
+            print("Timeout: 30 minutes have passed.")
+            break
