@@ -26,10 +26,16 @@ yes All | make z3-ubuntu > /dev/null 2>&1
 cd ..
 
 mkdir bisection/commit-$COMMIT
+mkdir tmp
+cp main.dfy tmp/main.dfy
+cp interestingness_test.sh tmp/interestingness_test.sh
 echo "Running interestingness test"
+cd tmp
 timeout 600 ./interestingness_test.sh 2>&1
 exit_status=$?
-cp fuzz-d.log bisection/$COMMIT.log
+cd ..
+cp tmp/fuzz-d.log bisection/$COMMIT.log
+rm -rf tmp
 
 # If the timeout is reached, exit with status 125 to indicate the commit should be skipped
 if [ $exit_status -eq 1 ]; then
