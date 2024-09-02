@@ -25,7 +25,7 @@ echo "Building Z3"
 yes All | make z3-ubuntu > /dev/null 2>&1
 cd ..
 
-mkdir bisection/commit-$COMMIT
+mkdir -p bisection/commit-$COMMIT
 mkdir tmp
 cp main.dfy tmp/main.dfy
 cp interestingness_test.sh tmp/interestingness_test.sh
@@ -35,6 +35,7 @@ timeout 600 ./interestingness_test.sh 2>&1
 exit_status=$?
 cd ..
 cp tmp/fuzz-d.log bisection/$COMMIT.log
+cp tmp/main.dfy bisection/$COMMIT.dfy
 rm -rf tmp
 
 # If the timeout is reached, exit with status 125 to indicate the commit should be skipped
