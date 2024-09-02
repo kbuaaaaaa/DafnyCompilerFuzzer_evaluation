@@ -3,7 +3,7 @@ import re
 
 def escape_for_grep(s):
     # Escape only the special characters for grep
-    return re.sub(r'([\\&!.*+?^${}<>|\[\]\'\"])', r'\\\1', s)
+    return re.sub(r'([\\/*.!\[\]\'\"])', r'\\\1', s)
 
 def generate_interestingness_test(test_folder, interpret, bug, language):
     # Script to be generated
