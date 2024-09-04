@@ -67,7 +67,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
             print("Waiting for reduction")
             await reduction_task
             print("Reduction result arrived")
-            return 1
+            return bisection_result
     
     # this check only pass if bug is not duplicate anywhere.
     if language != "miscompilation":
