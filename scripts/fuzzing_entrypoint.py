@@ -16,12 +16,6 @@ branch = sys.argv[3]
 start_time = time.time()
 
 if __name__ == "__main__":
-    print("Setting up Dafny")
-    result = subprocess.run(["./setup_dafny.sh", author, branch], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    if result.returncode != 0:
-        print("Failed to setup Dafny")
-        sys.exit(1)
-    print("Dafny setup complete")
     while (time.time() - start_time) < duration:
         # Fuzz until we hit an interesting case
         output = subprocess.run(["timeout", "60", "java", "-jar", "fuzz_d.jar", "fuzz"], capture_output=True, text=True)

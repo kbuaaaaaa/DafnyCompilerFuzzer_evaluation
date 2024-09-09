@@ -40,7 +40,7 @@ jobs:
         with:
           task-definition: bisecting_task_definition.json
           container-name: bisecting-container
-          image: ${{ steps.login-ecr.outputs.registry }}/compfuzzci/compfuzzci-base:latest
+          image: ${{ steps.login-ecr.outputs.registry }}/compfuzzci/compfuzzci-dafny:${{github.event.inputs.author}}-${{github.event.inputs.branch}}
           execution-role-arn: ${{ secrets.ECS_TASK_EXECUTION_ROLE_ARN }}
           task-role-arn: ${{ secrets.ECS_TASK_ROLE_ARN }}
           command: bisect ${{github.event.inputs.path}} ${{github.event.inputs.author}} ${{github.event.inputs.branch}}

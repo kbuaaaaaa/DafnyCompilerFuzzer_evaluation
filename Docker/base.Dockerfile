@@ -35,10 +35,3 @@ RUN go install golang.org/x/tools/cmd/goimports@latest
 #Install Rust
 RUN curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
-
-# Prepare for fuzzing
-RUN mkdir data
-RUN chmod +x entrypoint.sh
-ENV PATH="/compfuzzci/dafny/Scripts:${PATH}"
-
-ENTRYPOINT ["/compfuzzci/entrypoint.sh"]
