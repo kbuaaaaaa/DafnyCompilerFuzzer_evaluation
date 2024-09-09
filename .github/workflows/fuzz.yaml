@@ -57,7 +57,10 @@ jobs:
             attempt=$((attempt + 1))
             echo "Attempt $attempt of $max_attempts"
             
-            docker build -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE -f Docker/dafny.Dockerfile --build-arg AUTHOR=$AUTHOR BRANCH=$BRANCH . && \
+            docker build -t $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE \
+              -f Docker/dafny.Dockerfile \
+              --build-arg AUTHOR=$AUTHOR \
+              --build-arg BRANCH=$BRANCH . && \
             docker push $REGISTRY/$REGISTRY_ALIAS/$REPOSITORY:$IMAGE
             
             if [ $? -eq 0 ]; then
