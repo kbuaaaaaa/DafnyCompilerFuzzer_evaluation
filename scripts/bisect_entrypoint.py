@@ -5,7 +5,10 @@ import boto3
 
 if __name__ == "__main__":
     file_folder=sys.argv[1]
-
+    author=sys.argv[2]
+    branch=sys.argv[3]
+    #Set up dafny
+    subprocess.run(["./setup_dafny.sh", author, branch], check=True)
     s3 = boto3.resource('s3')
 
     #download the file
@@ -13,10 +16,8 @@ if __name__ == "__main__":
     subprocess.run(["chmod", "+x", "/compfuzzci/interestingness_test.sh"], check=True)
     # Read branch, language, main_commit, hashed bug
     with open("/compfuzzci/data.txt", 'r') as f:
-        branch = f.readline().strip()
+
         language = f.readline().strip()
-        main_commit = f.readline().strip()
-        branch_commit = f.readline().strip()
         hashed_bug = f.readline().strip()
         processing = f.readline().strip()
 
@@ -25,6 +26,9 @@ if __name__ == "__main__":
     with open("bisection/commit_order.txt", 'w') as file_obj:
         pass
 
+    main_commit = subprocess.check_output(["git", "rev-parse", "master"], cwd='dafny').decode().strip()
+    branch_commit = subprocess.check_output(["git", "rev-parse", branch], cwd='dafny').decode().strip()
+    subprocess.run(["git", "checkout", "master"], check=True, cwd='dafny')
     if processing == "False":  
         location = branch
         # Get the location of the bug
@@ -48,7 +52,6 @@ if __name__ == "__main__":
             manual_investigation = True
                 
         if not manual_investigation:
-            subprocess.run(["git", "checkout", main_commit], check=True, cwd='dafny')
             # Get the latest commit on the current branch
             print("Bisecting on master")
             # Start the bisect process
