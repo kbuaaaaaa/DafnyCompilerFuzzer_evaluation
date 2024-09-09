@@ -1,3 +1,4 @@
+#!/bin/bash
 author=$1
 branch=$2
 
