@@ -41,7 +41,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
     S3_folder = f"s3://compfuzzci/evaluation/tmp/{current_branch_commit}/{time}/{repetition}/{TASK_ID}"
     async def handle_bisection_reduction():
         reduction_task = asyncio.create_task(reduction(processing, output_dir, language, interpret))
-        bisection_result = await bisection(f"{S3_folder}/{language}/{output_dir}/", current_branch_commit)
+        bisection_result = await bisection(f"{S3_folder}/{language}/{output_dir}", current_branch_commit)
         print(f"Bisection result arrived: Location={bisection_result[0]}, First bad commit={bisection_result[1]}")
         if bisection_result[1] == "duplicated":
             print("Bug is duplicated. Cancelling reduction task.")
