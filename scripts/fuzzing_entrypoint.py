@@ -21,12 +21,10 @@ def remove_fuzz_d_error(bug):
                     "type parameter is not declared in this scope", "Error: the type of this expression is underspecified",
                     "Error: branches of if-then-else have incompatible types", "Error: the two branches of an if-then-else expression must have the same type",
                     "incompatible types", "Error: Microsoft.Dafny.UnsupportedInvalidOperationException", "index", "Index"]
-    for error in known_errors:
-        for b in bug:
-            if error in b:
-                bug.remove(b)
     
-    return bug
+    filtered_bug = [b for b in bug if not any(error in b for error in known_errors)]
+    
+    return filtered_bug
 
 if __name__ == "__main__":
     time_interval = "30"
