@@ -16,6 +16,18 @@ duration = 60*60*2
 branch = sys.argv[3]
 start_time = time.time()
 
+def remove_fuzz_d_error(bug):
+    known_errors = ["All elements of display must have some common supertype", "type of left argument to +",
+                    "type parameter is not declared in this scope", "Error: the type of this expression is underspecified",
+                    "Error: branches of if-then-else have incompatible types", "Error: the two branches of an if-then-else expression must have the same type",
+                    "incompatible types", "Error: Microsoft.Dafny.UnsupportedInvalidOperationException", "index", "Index"]
+    for error in known_errors:
+        for b in bug:
+            if error in b:
+                bug.remove(b)
+    
+    return bug
+
 if __name__ == "__main__":
     time_interval = "30"
     repetition = os.environ.get('REPETITION')
@@ -41,6 +53,7 @@ if __name__ == "__main__":
 
             threads = []
             for language, bug in bugs.items():
+                bug = remove_fuzz_d_error(bug)
                 if bug:
                     t = Thread(target=process_bug_handler, args=(output_dir, language, bug, branch, interpret, main_commit, branch_commit, False, "None", time_interval, repetition))
                     threads.append(t)

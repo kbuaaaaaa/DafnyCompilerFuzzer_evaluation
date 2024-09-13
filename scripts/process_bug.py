@@ -17,15 +17,6 @@ TASK_ID = response.json()["TaskARN"].split("/")[-1]
 # Create an S3 resource object
 s3 = boto3.resource('s3')
 
-def is_fuzz_d_error(bug):
-    known_errors = ["All elements of display must have some common supertype", "type of left argument to +", "type parameter is not declared in this scope", "Error: the type of this expression is underspecified", "Error: branches of if-then-else have incompatible types", "Error: the two branches of an if-then-else expression must have the same type", "incompatible types", "Error: Microsoft.Dafny.UnsupportedInvalidOperationException", "index", "Index"]
-    for error in known_errors:
-        for b in bug:
-            if error in b:
-                bug.remove(b)
-    
-    return len(bug) == 0
-
 def hash_bug(bug):
     # Hash bug data and make a folder for it in location/language/
     sorted_bug = sorted(bug)
@@ -70,7 +61,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
     hashed_bug = hash_bug(bug)
     output_dir += "/"
 
-    if not (is_fuzz_d_error(bug) or is_duplicate("master", language, hashed_bug) or is_duplicate(branch, language, hashed_bug)):
+    if not (is_duplicate("master", language, hashed_bug) or is_duplicate(branch, language, hashed_bug)):
         print("Found interesting case in " + language)
         s3.put_object(Bucket='compfuzzci', Key=f'evaluation/bugs/master/{language}/{hashed_bug}', Body='')
         generate_interestingness_test(output_dir, interpret, bug, language)
