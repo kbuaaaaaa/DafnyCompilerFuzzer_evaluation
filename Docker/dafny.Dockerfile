@@ -1,4 +1,4 @@
-FROM --platform=linux/x86_64 public.ecr.aws/compfuzzci/compfuzzci-base:latest
+FROM --platform=linux/x86_64 public.ecr.aws/compfuzzci/evaluation:base
 ARG COMMIT
 
 # Install Dafny

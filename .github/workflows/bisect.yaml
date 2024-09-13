@@ -6,6 +6,10 @@ on:
         description: 'Path to the files'
         required: true
         type: string
+      commit:
+        description: 'Commit to bisect'
+        required: true
+        type: string
 permissions:
   id-token: write
   contents: read

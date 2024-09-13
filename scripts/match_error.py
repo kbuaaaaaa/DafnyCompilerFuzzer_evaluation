@@ -37,6 +37,7 @@ error_patterns = {
 
 def match_error(fuzzd_log):
     result = {
+        'miscompilation': False,
         'rs': set(),
         'cs': set(),
         'js': set(),
@@ -67,6 +68,8 @@ def match_error(fuzzd_log):
                         matches = re.findall(pattern, content)
                         for match in matches:
                             match = match.rstrip('\n')
+                            match = re.sub(r"'[^']*'", '', match)
+                            match = re.sub(r'"[^"]*"', '', match)
                             if lang == 'go' and pattern == GoErrorPatterns[4]:
                                 match = match.split(':')[3:]
                                 match[0] = match[0].lstrip()
@@ -84,12 +87,17 @@ def match_error(fuzzd_log):
                         matches = re.findall(pattern, content)
                         for match in matches:
                             match = match.rstrip('\n')
+                            match = re.sub(r"'[^']*'", '', match)
+                            match = re.sub(r'"[^"]*"', '', match)
                             if lang == 'go' and pattern == GoErrorPatterns[5]:
                                 match = match.split(':')[3:]
                                 match[0] = match[0].lstrip()
                                 match = ':'.join(match)
                                 match = match.split('at')[0]
                             result[lang].add(match)
+                            
+            if "Different output: true" in log_content:
+                result['miscompilation'] = True
     except Exception as e:
         print(f"An error occurred: {str(e)}")
     
@@ -105,4 +113,10 @@ def match_error(fuzzd_log):
 if __name__ == "__main__":
     all_lang_output = match_error(sys.argv[1])
     lang = sys.argv[2]
-    print(all_lang_output['miscompilation'])
+    if lang != "miscompilation":
+        sorted_bug = sorted(all_lang_output[lang])
+        concatenated_bug = ''.join(sorted_bug)
+        hashed_bug = hashlib.md5(concatenated_bug.encode()).hexdigest()
+        print(hashed_bug)
+    else:
+        print(all_lang_output['miscompilation'])
