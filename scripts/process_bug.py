@@ -22,8 +22,9 @@ def is_fuzz_d_error(bug):
     for error in known_errors:
         for b in bug:
             if error in b:
-                return True
-    return False
+                bug.remove(b)
+    
+    return len(bug) == 0
 
 def hash_bug(bug):
     # Hash bug data and make a folder for it in location/language/
