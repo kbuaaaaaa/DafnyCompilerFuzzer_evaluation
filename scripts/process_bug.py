@@ -87,7 +87,10 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
         subprocess.run(["cp", f"{output_dir}main.dfy", f"tmp/{language}/main.dfy"], check=True)
 
         with open(f"tmp/{language}/data.txt", 'w') as f:
+            f.write(f"{branch}\n")
             f.write(f"{language}\n")
+            f.write(f"{main_commit}\n")
+            f.write(f"{current_branch_commit}\n")
             f.write(f"{hashed_bug}\n")
             f.write(f"{processing}\n")
         f.close()
