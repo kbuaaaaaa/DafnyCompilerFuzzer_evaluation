@@ -142,10 +142,10 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
         print(f"Not interesting: Duplicate or known error in {language}")
         return 0
 
-def process_bug_handler(output_dir, language, bug, author, branch, interpret, processing, issue_no, time, repetition):
+def process_bug_handler(output_dir, language, bug, branch, interpret, main_commit, current_branch_commit, processing, issue_no, time, repetition):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     try:
-        loop.run_until_complete(process_bug(output_dir, language, bug, author, branch, interpret, processing, issue_no, time, repetition))
+        loop.run_until_complete(process_bug(output_dir, language, bug, branch, interpret, main_commit, current_branch_commit, processing, issue_no, time, repetition))
     finally:
         loop.close()
