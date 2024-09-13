@@ -72,7 +72,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
 
     if not (is_fuzz_d_error(bug) or is_duplicate("master", language, hashed_bug) or is_duplicate(branch, language, hashed_bug)):
         print("Found interesting case in " + language)
-        s3.put_object(Bucket='compfuzzci', Key=f'{hashed_bug}', Body='')
+        s3.put_object(Bucket='compfuzzci', Key=f'evaluation/bugs/master/{language}/{hashed_bug}', Body='')
         generate_interestingness_test(output_dir, interpret, bug, language)
 
         os.makedirs(f"{language}-tmp", exist_ok=True)
