@@ -41,7 +41,7 @@ if __name__ == "__main__":
         output = subprocess.run(["timeout", "60", "java", "-jar", "fuzz_d.jar", "fuzz"], capture_output=True, text=True)
         if output.returncode == 0:
             output_dir = output.stdout.split(': ')[-1].strip()
-            time_passed = time.time() - start_time
+            time_passed = int(time.time() - start_time)
             subprocess.run(["aws", "s3", "cp", f"{output_dir}/main.dfy", f"s3://compfuzzci/evaluation/all_test/{branch_commit}/{time_interval}/{repetition}/{output_dir}/main.dfy"], check=True)
             subprocess.run(["aws", "s3", "cp", f"{output_dir}/fuzz-d.log", f"s3://compfuzzci/evaluation/all_test/{branch_commit}/{time_interval}/{repetition}/{output_dir}/{time_passed}.log"], check=True)
             uuid = output_dir.split('/')[-1]
