@@ -31,7 +31,7 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REGISTRY_ALIAS: compfuzzci
-          REPOSITORY: compfuzzci-dafny
+          REPOSITORY: evaluation
           IMAGE: ${{github.event.inputs.commit}}
           COMMIT: ${{github.event.inputs.commit}}
         run: |
