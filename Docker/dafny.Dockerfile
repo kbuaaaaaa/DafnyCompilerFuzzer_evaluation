@@ -4,7 +4,7 @@ ARG COMMIT
 # Install Dafny
 RUN git clone https://github.com/dafny-lang/dafny.git
 RUN cd dafny && \
-    git checkout ${COMMIT}\
+    git checkout ${COMMIT} &&\
     make exe && \
     make z3-ubuntu
 
