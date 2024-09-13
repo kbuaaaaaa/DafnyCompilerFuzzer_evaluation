@@ -13,14 +13,12 @@ from bisection import bisection
 ECS_CONTAINER_METADATA_URI_V4 = os.environ.get('ECS_CONTAINER_METADATA_URI_V4')
 response = requests.get(f"{ECS_CONTAINER_METADATA_URI_V4}/task")
 TASK_ID = response.json()["TaskARN"].split("/")[-1]
-# Set the S3 folder
-S3_folder = "s3://compfuzzci/tmp/" + TASK_ID
 
 # Create an S3 resource object
 s3 = boto3.resource('s3')
 
 def is_fuzz_d_error(bug):
-    known_errors = ["All elements of display must have some common supertype", "type of left argument to +", "type parameter is not declared in this scope", "Error: the type of this expression is underspecified", "Error: branches of if-then-else have incompatible types", "Error: the two branches of an if-then-else expression must have the same type", "incompatible types", "Unespected field to assign whose isAssignedVar is not in the environment", "Error: Microsoft.Dafny.UnsupportedInvalidOperationException"]
+    known_errors = ["All elements of display must have some common supertype", "type of left argument to +", "type parameter is not declared in this scope", "Error: the type of this expression is underspecified", "Error: branches of if-then-else have incompatible types", "Error: the two branches of an if-then-else expression must have the same type", "incompatible types", "Error: Microsoft.Dafny.UnsupportedInvalidOperationException", "index", "Index"]
     for error in known_errors:
         for b in bug:
             if error in b:
@@ -37,7 +35,7 @@ def hash_bug(bug):
 def is_duplicate(branch="master", language= "dafny", hashed_bug=""):
     # Define the S3 bucket and prefix
     bucket_name = "compfuzzci"
-    prefix = f"bugs/{branch}/{language}/{hashed_bug}"
+    prefix = f"evaluation/bugs/{branch}/{language}/{hashed_bug}"
 
     # List objects in the S3 bucket with the specified prefix
     print(f"Checking if {prefix} exists")
@@ -47,16 +45,14 @@ def is_duplicate(branch="master", language= "dafny", hashed_bug=""):
 
     return False
 
-async def process_bug(output_dir, language, bug, author, branch, interpret, processing=False, issue_no="None"):
-
+async def process_bug(output_dir, language, bug, branch, interpret, main_commit, current_branch_commit, processing=False, issue_no="None", time="", repetition=""):
+    S3_folder = f"s3://compfuzzci/evaluation/tmp/{current_branch_commit}/{time}/{repetition}/{TASK_ID}"
     async def handle_bisection_reduction():
         reduction_task = asyncio.create_task(reduction(processing, output_dir, language, interpret))
-        bisection_result = await bisection(f"{S3_folder}/{language}/", author, branch)
+        bisection_result = await bisection(f"{S3_folder}/{language}/{output_dir}/", current_branch_commit)
         print(f"Bisection result arrived: Location={bisection_result[0]}, First bad commit={bisection_result[1]}")
         if bisection_result[1] == "duplicated":
             print("Bug is duplicated. Cancelling reduction task.")
-            return 0
-        elif language == "miscompilation" and is_duplicate(bisection_result[0], language, bisection_result[1]):
             reduction_task.cancel()
             try:
                 await reduction_task
@@ -70,34 +66,28 @@ async def process_bug(output_dir, language, bug, author, branch, interpret, proc
             return bisection_result
     
     # this check only pass if bug is not duplicate anywhere.
-    if language != "miscompilation":
-        hashed_bug = hash_bug(bug)
-    else:
-        hashed_bug = bug
-
-    if not processing:
-            output_dir += "/"
+    hashed_bug = hash_bug(bug)
+    output_dir += "/"
 
     if not (is_fuzz_d_error(bug) or is_duplicate("master", language, hashed_bug) or is_duplicate(branch, language, hashed_bug)):
         print("Found interesting case in " + language)
 
         generate_interestingness_test(output_dir, interpret, bug, language)
 
-        if not processing:
-            os.makedirs(f"{language}-tmp", exist_ok=True)
-            shutil.copy(f"{output_dir}main.dfy", f"{language}-tmp/main.dfy")
-            shutil.copy(f"{output_dir}{language}-interestingness_test.sh", f"{language}-tmp/{language}-interestingness_test.sh")
-            process = await asyncio.create_subprocess_shell(f"./{language}-interestingness_test.sh", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{language}-tmp")
-            await process.communicate()
-            os.remove(f"{language}-tmp/main.dfy")
-            print(f"interestingness_test returns: {process.returncode}")
-            if process.returncode != 0:
-                os.makedirs(f"tmp/{language}", exist_ok=True)
-                subprocess.run(["cp", f"{output_dir}{language}-interestingness_test.sh", f"tmp/{language}/interestingness_test.sh"], check=True)
-                subprocess.run(["cp", f"{output_dir}main.dfy", f"tmp/{language}/main.dfy"], check=True)
-                subprocess.run(["cp", f"{output_dir}fuzz-d.log", f"tmp/{language}/fuzz-d.log"], check=True)
-                subprocess.run(["aws", "s3", "cp", f"tmp/{language}/", f"s3://compfuzzci/interest_failed/{language}-{TASK_ID}/", "--recursive"], check=True)
-                return 0
+        os.makedirs(f"{language}-tmp", exist_ok=True)
+        shutil.copy(f"{output_dir}main.dfy", f"{language}-tmp/main.dfy")
+        shutil.copy(f"{output_dir}{language}-interestingness_test.sh", f"{language}-tmp/{language}-interestingness_test.sh")
+        process = await asyncio.create_subprocess_shell(f"./{language}-interestingness_test.sh", stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=f"{language}-tmp")
+        await process.communicate()
+        os.remove(f"{language}-tmp/main.dfy")
+        print(f"interestingness_test returns: {process.returncode}")
+        if process.returncode != 0:
+            os.makedirs(f"tmp/{language}", exist_ok=True)
+            subprocess.run(["cp", f"{output_dir}{language}-interestingness_test.sh", f"tmp/{language}/interestingness_test.sh"], check=True)
+            subprocess.run(["cp", f"{output_dir}main.dfy", f"tmp/{language}/main.dfy"], check=True)
+            subprocess.run(["cp", f"{output_dir}fuzz-d.log", f"tmp/{language}/fuzz-d.log"], check=True)
+            subprocess.run(["aws", "s3", "cp", f"tmp/{language}/", f"s3://compfuzzci/interest_failed/{language}-{TASK_ID}/", "--recursive"], check=True)
+            return 0
 
         # Copy interestingness test, fuzz_d.log, main.dfy to folder for the task in S3
         os.makedirs(f"tmp/{language}", exist_ok=True)
@@ -109,7 +99,7 @@ async def process_bug(output_dir, language, bug, author, branch, interpret, proc
             f.write(f"{hashed_bug}\n")
             f.write(f"{processing}\n")
         f.close()
-        subprocess.run(["aws", "s3", "cp", f"tmp/{language}/", f"{S3_folder}/{language}/", "--recursive"], check=True)
+        subprocess.run(["aws", "s3", "cp", f"tmp/{language}/", f"{S3_folder}/{language}/{output_dir}/", "--recursive"], check=True)
         subprocess.run(["rm", "-rf", f"tmp/{language}"], check=True)
 
         result = await handle_bisection_reduction()
@@ -128,10 +118,7 @@ async def process_bug(output_dir, language, bug, author, branch, interpret, proc
         subprocess.run(["cp", f"{output_dir}reduced_{language}/main.dfy", f"tmp/{language}/reduced.dfy"], check=True)
         subprocess.run(["cp", f"{output_dir}reduced_{language}/fuzz-d.log", f"tmp/{language}/reduced_fuzz-d.log"], check=True)
 
-        if issue_no == "None":
-            result_foldername = f"s3://compfuzzci/bugs-to-be-processed/pull_request-{location}-{language}-{TASK_ID}/"
-        else:
-            result_foldername = f"s3://compfuzzci/bugs-to-be-processed/issue-{issue_no}-{location}-{language}-{TASK_ID}/"
+        result_foldername = f"s3://compfuzzci/evaluation/bugs-to-be-processed/evaluation/{current_branch_commit}/{time}/{repetition}/{TASK_ID}/{language}/{output_dir}/"
         subprocess.run(["aws", "s3", "cp", f"tmp/{language}/", result_foldername, "--recursive"], check=True)
 
         with open(f"tmp/{language}/data.txt", 'w') as f:
@@ -155,10 +142,10 @@ async def process_bug(output_dir, language, bug, author, branch, interpret, proc
         print(f"Not interesting: Duplicate or known error in {language}")
         return 0
 
-def process_bug_handler(output_dir, language, bug, author, branch, interpret, processing, issue_no):
+def process_bug_handler(output_dir, language, bug, author, branch, interpret, processing, issue_no, time, repetition):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     try:
-        loop.run_until_complete(process_bug(output_dir, language, bug, author, branch, interpret, processing, issue_no))
+        loop.run_until_complete(process_bug(output_dir, language, bug, author, branch, interpret, processing, issue_no, time, repetition))
     finally:
         loop.close()

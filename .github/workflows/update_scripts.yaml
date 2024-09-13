@@ -23,6 +23,6 @@ jobs:
           aws-region: ${{secrets.AWS_REGION}}
       - name: Upload all scripts to S3
         run: |
-          aws s3 cp entrypoint.sh s3://compfuzzci/base-files/
-          aws s3 cp scripts/ s3://compfuzzci/base-files/scripts/ --recursive
+          aws s3 cp entrypoint.sh s3://compfuzzci/evaluation/base-files/
+          aws s3 cp scripts/ s3://compfuzzci/evaluation/base-files/scripts/ --recursive
 

@@ -6,14 +6,6 @@ on:
         description: 'Path to the files'
         required: true
         type: string
-      author:
-        description: 'Author of the PR'
-        required: true
-        type: string
-      branch:
-        description: 'The PR head branch'
-        required: true
-        type: string
 permissions:
   id-token: write
   contents: read
@@ -40,10 +32,10 @@ jobs:
         with:
           task-definition: bisecting_task_definition.json
           container-name: bisecting-container
-          image: ${{ steps.login-ecr.outputs.registry }}/compfuzzci/compfuzzci-dafny:${{github.event.inputs.author}}-${{github.event.inputs.branch}}
+          image: ${{ steps.login-ecr.outputs.registry }}/compfuzzci/evaluation:${{github.event.inputs.commit}}
           execution-role-arn: ${{ secrets.ECS_TASK_EXECUTION_ROLE_ARN }}
           task-role-arn: ${{ secrets.ECS_TASK_ROLE_ARN }}
-          command: bisect ${{github.event.inputs.path}} ${{github.event.inputs.author}} ${{github.event.inputs.branch}}
+          command: bisect ${{github.event.inputs.path}}
       - name: Register Amazon ECS task definition
         id: register-task-def
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -52,9 +44,3 @@ jobs:
       - name: Deploy ECS Task
         run: |
           aws ecs run-task --cluster ${{ secrets.ECS_CLUSTER }} --task-definition ${{ steps.register-task-def.outputs.task-definition-arn }} --count 1
-
- 
-      
-
-      
-      

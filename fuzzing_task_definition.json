@@ -17,6 +17,10 @@
                 {
                     "name": "GITHUB_TOKEN",
                     "value": ""
+                },
+                {
+                    "name": "REPETITION",
+                    "value": ""
                 }
             ],
             "startTimeout": 300,

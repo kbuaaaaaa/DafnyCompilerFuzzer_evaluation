@@ -5,10 +5,10 @@ import boto3
 import botocore
 import time
 
-async def bisection(file_dir, author, branch):
+async def bisection(file_dir, commit):
     # Dispatch GitHub workflow using GitHub API
-    owner = "CompFuzzCI"
-    repo = "DafnyCompilerFuzzer"
+    owner = "kbuaaaaaa"
+    repo = "DafnyCompilerFuzzer_evaluation"
     workflow_id = "bisect.yaml"
     url = f"https://api.github.com/repos/{owner}/{repo}/actions/workflows/{workflow_id}/dispatches"
     headers = {
@@ -19,8 +19,7 @@ async def bisection(file_dir, author, branch):
         "ref": "main",
         "inputs": {
             "path": f"{file_dir}",
-            "author": f"{author}",
-            "branch": f"{branch}"
+            "commit": f"{commit}"
         }
     }
     

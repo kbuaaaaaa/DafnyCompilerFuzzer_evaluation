@@ -1,13 +1,10 @@
 FROM --platform=linux/x86_64 public.ecr.aws/compfuzzci/compfuzzci-base:latest
-ARG AUTHOR
-ARG BRANCH
+ARG COMMIT
 
 # Install Dafny
 RUN git clone https://github.com/dafny-lang/dafny.git
 RUN cd dafny && \
-    git remote add merge-head https://github.com/${AUTHOR}/dafny.git && \
-    git fetch merge-head && \
-    git checkout -b ${BRANCH} merge-head/${BRANCH} && \
+    git checkout ${COMMIT}\
     make exe && \
     make z3-ubuntu
 

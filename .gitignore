@@ -398,3 +398,6 @@ FodyWeavers.xsd
 *.sln.iml
 
 .DS_Store
+*/bugs/
+*/commits_bug/
+evaluation/*
