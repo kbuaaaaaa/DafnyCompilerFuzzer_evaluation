@@ -18,12 +18,13 @@ start_time = time.time()
 
 def remove_fuzz_d_error(bug):
     known_errors = ["All elements of display must have some common supertype", "type of left argument to",
-                    "type parameter is not declared in this scope", "the type of this expression is underspecified",
+                    "is not declared in this scope", "the type of this expression is underspecified",
                     "branches of if-then-else have incompatible types", "the two branches of an if-then-else expression must have the same type",
-                    "incompatible types", "Microsoft.Dafny.UnsupportedInvalidOperationException", "index", "Index", "sequence update requires the value to have the element type",
-                    "no suitable method found for", "is not iterable", "does not take any type arguments", "non-function expression",
+                    "incompatible types", "Microsoft.Dafny.UnsupportedInvalidOperationException", "sequence update requires the value to have the element type",
+                    "no suitable method found for", "is not iterable", "does not take any", "non-function expression",
                     "incorrect type for selection into", "the number of left-hand sides","does not take any type arguments",
-                    "not assignable to", "cannot be applied to given types","generic array creation","expected an indented block"]
+                    "not assignable to", "cannot be applied to given types","generic array creation","expected an indented block",
+                    "Feature not supported"]
     
     filtered_bug = [b for b in bug if not any(error in b for error in known_errors)]
     
