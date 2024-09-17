@@ -30,7 +30,7 @@ def is_duplicate(repetition=0, branch="master", language= "dafny", bug=""):
     response = s3.meta.client.list_objects_v2(Bucket=bucket_name, Prefix=f"evaluation/bugs/{repetition}/{branch}/{language}/{hashed_bug}")
     if response.get('Contents'):
         return True
-    response = s3.meta.client.list_objects_v2(Bucket=bucket_name, Prefix=f"evaluation/bugs//{repetition}/master/{language}/{hashed_bug}")
+    response = s3.meta.client.list_objects_v2(Bucket=bucket_name, Prefix=f"evaluation/bugs/{repetition}/master/{language}/{hashed_bug}")
     if response.get('Contents'):
         return True
     return False
@@ -61,12 +61,12 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
             return bisection_result
     
     # this check only pass if bug is not duplicate anywhere.
-    hashed_bug = hash_bug(bug)
     output_dir += "/"
     bug = remove_duplicate(repetition, branch,language,bug)
     if bug:
         print("Found interesting case in " + language)
-        s3.meta.client.put_object(Bucket='compfuzzci', Key=f'evaluation/bugs/master/{language}/{hashed_bug}', Body=b'')
+        for b in bug:
+            s3.meta.client.put_object(Bucket='compfuzzci', Key=f'evaluation/bugs/{repetition}/master/{language}/{hash_bug(b)}', Body=b'')
         generate_interestingness_test(output_dir, interpret, bug, language)
 
         os.makedirs(f"{language}-tmp", exist_ok=True)
