@@ -28,7 +28,7 @@ if __name__ == "__main__":
             time_interval = "60"
         # Fuzz until we hit an interesting case
         print("Fuzzing...")
-        output = subprocess.run(["timeout", "60", "java", "-jar", "fuzz_d.jar", "fuzz"], capture_output=True, text=True)
+        output = subprocess.run(["timeout", "180", "java", "-jar", "fuzz_d.jar", "fuzz"], capture_output=True, text=True)
         if output.returncode == 0:
             output_dir = output.stdout.split(': ')[-1].strip()
             time_passed = int(time.time() - start_time)
