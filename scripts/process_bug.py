@@ -94,7 +94,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
             f.write(f"{language}\n")
             f.write(f"{main_commit}\n")
             f.write(f"{current_branch_commit}\n")
-            f.write(f"{hashed_bug}\n")
+            f.write(f"{str(bug)}\n")
             f.write(f"{processing}\n")
         f.close()
         subprocess.run(["aws", "s3", "cp", f"tmp/{language}/", f"{S3_folder}/{language}/{output_dir}", "--recursive"], check=True)
@@ -123,7 +123,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
             f.write(f"Location: {location}\n")
             f.write(f"Bad commit: {first_bad_commit}\n")
             f.write(f"Language: {language}\n")
-            f.write(f"Bug: {hashed_bug}\n")
+            f.write(f"Bug: {str([hash_bug(b) for b in bug])}\n")
             f.write(f"Issue number: {issue_no}\n")
         f.close()
 
