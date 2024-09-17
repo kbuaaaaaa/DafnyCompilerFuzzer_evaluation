@@ -113,7 +113,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
         subprocess.run(["cp", f"{output_dir}reduced_{language}/main.dfy", f"tmp/{language}/reduced.dfy"], check=True)
         subprocess.run(["cp", f"{output_dir}reduced_{language}/fuzz-d.log", f"tmp/{language}/reduced_fuzz-d.log"], check=True)
 
-        result_foldername = f"s3://compfuzzci/evaluation/bugs-to-be-processed/evaluation/{current_branch_commit}/{time}/{repetition}/{TASK_ID}/{language}/{output_dir}"
+        result_foldername = f"s3://compfuzzci/evaluation/bugs-to-be-processed/{current_branch_commit}/{time}/{repetition}/{TASK_ID}/{language}/{output_dir}"
         subprocess.run(["aws", "s3", "cp", f"tmp/{language}/", result_foldername, "--recursive"], check=True)
 
         with open(f"tmp/{language}/data.txt", 'w') as f:
