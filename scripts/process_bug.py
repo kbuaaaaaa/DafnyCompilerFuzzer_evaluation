@@ -72,7 +72,7 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
     if bug:
         print("Found interesting case in " + language)
         for b in bug:
-            s3.meta.client.put_object(Bucket='compfuzzci', Key=f'evaluation/bugs/{repetition}/master/{language}/{hash_bug(b)}', Body=b'')
+            s3.meta.client.put_object(Bucket='compfuzzci', Key=f'evaluation/bugs/{repetition}/master/{language}/{hash_bug(remove_names(b))}', Body=b'')
         generate_interestingness_test(output_dir, interpret, bug, language)
 
         os.makedirs(f"{language}-tmp", exist_ok=True)
