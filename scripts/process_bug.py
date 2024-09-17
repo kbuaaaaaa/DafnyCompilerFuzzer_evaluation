@@ -21,6 +21,7 @@ s3 = boto3.resource('s3')
 def remove_names(bug):
     bug = re.sub(r"'[^']*'", '', bug)
     bug = re.sub(r'"[^"]*"', '', bug)
+    bug = bug.strip()
     return bug
 
 def hash_bug(bug):
