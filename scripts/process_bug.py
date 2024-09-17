@@ -19,23 +19,26 @@ s3 = boto3.resource('s3')
 
 def hash_bug(bug):
     # Hash bug data and make a folder for it in location/language/
-    sorted_bug = sorted(bug)
-    concatenated_bug = ''.join(sorted_bug)
-    hashed_bug = hashlib.md5(concatenated_bug.encode()).hexdigest()
+    hashed_bug = hashlib.md5(bug.encode()).hexdigest()
     return hashed_bug
 
-def is_duplicate(branch="master", language= "dafny", hashed_bug=""):
+def is_duplicate(repetition=0, branch="master", language= "dafny", bug=""):
     # Define the S3 bucket and prefix
     bucket_name = "compfuzzci"
-    prefix = f"evaluation/bugs/{branch}/{language}/{hashed_bug}"
-
-    # List objects in the S3 bucket with the specified prefix
-    print(f"Checking if {prefix} exists")
-    response = s3.meta.client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+    print(f"Checking if {bug} exists for {language}")
+    hashed_bug = hash_bug(bug)
+    response = s3.meta.client.list_objects_v2(Bucket=bucket_name, Prefix=f"evaluation/bugs/{repetition}/{branch}/{language}/{hashed_bug}")
     if response.get('Contents'):
         return True
-
+    response = s3.meta.client.list_objects_v2(Bucket=bucket_name, Prefix=f"evaluation/bugs//{repetition}/master/{language}/{hashed_bug}")
+    if response.get('Contents'):
+        return True
     return False
+
+def remove_duplicate(repetition, branch, language, bugs):
+    # List objects in the S3 bucket with the specified prefix
+    filtered_bugs = [b for b in bugs if not is_duplicate(repetition, branch, language, b)]
+    return filtered_bugs
 
 async def process_bug(output_dir, language, bug, branch, interpret, main_commit, current_branch_commit, processing=False, issue_no="None", time="", repetition=""):
     S3_folder = f"s3://compfuzzci/evaluation/tmp/{current_branch_commit}/{time}/{repetition}/{TASK_ID}"
@@ -60,8 +63,8 @@ async def process_bug(output_dir, language, bug, branch, interpret, main_commit,
     # this check only pass if bug is not duplicate anywhere.
     hashed_bug = hash_bug(bug)
     output_dir += "/"
-
-    if not (is_duplicate("master", language, hashed_bug) or is_duplicate(branch, language, hashed_bug)):
+    bug = remove_duplicate(repetition, branch,language,bug)
+    if bug:
         print("Found interesting case in " + language)
         s3.meta.client.put_object(Bucket='compfuzzci', Key=f'evaluation/bugs/master/{language}/{hashed_bug}', Body=b'')
         generate_interestingness_test(output_dir, interpret, bug, language)
