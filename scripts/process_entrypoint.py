@@ -11,8 +11,6 @@ import requests
 issue_no = sys.argv[1]
 UNWANTED_LABELS = [r'kind: language development speed', r'misc: \[.*\]']
 
-
-
 def write_code_to_file(code):
     with open ('main.dfy', 'w') as f:
         f.write(code)
