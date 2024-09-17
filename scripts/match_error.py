@@ -74,6 +74,9 @@ def match_error(fuzzd_log):
                                 match[0] = match[0].lstrip()
                                 match = ':'.join(match)
                                 match = match.split('at')[0]
+                            else:
+                                match = match.split(':')[1:]
+                                match = ':'.join(match)
                             result[lang].add(match)
                 
             # Check execution failure
@@ -93,6 +96,9 @@ def match_error(fuzzd_log):
                                 match[0] = match[0].lstrip()
                                 match = ':'.join(match)
                                 match = match.split('at')[0]
+                            else:
+                                match = match.split(':')[1:]
+                                match = ':'.join(match)
                             result[lang].add(match)
                             
     except Exception as e:
