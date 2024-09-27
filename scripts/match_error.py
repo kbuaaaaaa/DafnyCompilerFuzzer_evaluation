@@ -33,7 +33,7 @@ known_errors = [
     "no suitable method found for", "is not iterable", "does not take any", "non-function expression",
     "incorrect type for selection into", "the number of left-hand sides","does not take any type arguments",
     "not assignable to", "cannot be applied to given types","generic array creation","expected an indented block",
-    "Feature not supported", "implemented"
+    "Feature not supported", "implemented", "index", "Index"
 ]
 
 # Map language identifiers to their respective regex patterns
