@@ -19,7 +19,7 @@ start_time = time.time()
 if __name__ == "__main__":
     time_interval = "30"
     repetition = os.environ.get('REPETITION')
-    commit_check = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+    commit_check = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd="dafny").stdout.strip()
     print(f"Current HEAD commit: {commit_check}")
     while (time.time() - start_time) < duration:
         if (time.time() - start_time) > (90*60):
